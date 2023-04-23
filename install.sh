@@ -46,15 +46,15 @@ $HOME_DIR/.fzf/install --all >/dev/null
 
 # Install zsh plugins
 log "[5/6] Installing zsh plugins..."
-log "Cloning powerlevel10k"
+log "=>Cloning powerlevel10k"
 git clone --depth=1 --quiet https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$ZSH/custom}/themes/powerlevel10k
-log "Cloning zsh-autosuggestions"
+log "=>Cloning zsh-autosuggestions"
 git clone --quiet https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-$ZSH/custom}/plugins/zsh-autosuggestions
-log "Cloning zsh-history-substring-search"
+log "=>Cloning zsh-history-substring-search"
 git clone --quiet https://github.com/zsh-users/zsh-history-substring-search ${ZSH_CUSTOM:-$ZSH/custom}/plugins/zsh-history-substring-search
-log "Cloning zsh-syntax-highlighting"
+log "=>Cloning zsh-syntax-highlighting"
 git clone --quiet https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-$ZSH/custom}/plugins/zsh-syntax-highlighting
-log "Cloning fzf-tab"
+log "=>Cloning fzf-tab"
 git clone --quiet https://github.com/Aloxaf/fzf-tab ${ZSH_CUSTOM:-$ZSH/custom}/plugins/fzf-tab
 
 log "[6/6] Installation complete"
