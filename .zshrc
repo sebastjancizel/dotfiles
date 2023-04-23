@@ -2,6 +2,8 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 
 DEFAULT_USER=`whoami`
 
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
 plugins=(
   tmux
   git       # good shortcuts for git
@@ -47,9 +49,10 @@ _fzf_comprun() {
   case "$command" in
     cd)           fzf --preview 'tree -C {} | head -200'   "$@" ;;
     export|unset) fzf --preview "eval 'echo \$'{}"         "$@" ;;
-    ssh)          fzf --preview 'dig {}'                   "$@" ;;
     *)            fzf --preview 'bat -n --color=always {}' "$@" ;;
   esac
 }
 
 
+# Aliases
+alias tmux="tmux -u"
