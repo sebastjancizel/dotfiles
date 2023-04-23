@@ -15,7 +15,7 @@ This repository contains my personal dotfiles for configuring the shell environm
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/dotfiles.git ~/dotfiles
+git clone https://github.com/sebastjancizel/dotfiles.git ~/dotfiles
 ```
 
 2. Change the current directory to the `dotfiles` folder:
