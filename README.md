@@ -57,4 +57,13 @@ docker build -t my-dotfiles .
 3. Run the Docker container:
 
 ```bash
+docker run -it --rm my-dotfiles
+```
 
+This will launch an interactive session within the Docker container, where you can test the \`install.sh\` script and the configuration files.
+
+## Enjoy Your Customized Environment! 🌟
+
+After running the `install.sh` script, your shell environment will be set up with the custom configurations provided by the dotfiles in this repository. Enjoy your new and improved terminal experience! 😃
+
+If you encounter any issues or have suggestions for improvements, feel free to open an issue or submit a pull request.
