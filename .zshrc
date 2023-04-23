@@ -15,6 +15,10 @@ plugins=(
   zsh-history-substring-search
 )
 
+if [[ `uname` == "Darwin" ]]; then
+  plugins += (macos brew)
+fi
+
 if [[ -n "$SSH_CONNECTION" ]]; then
   # If SSH connection is detected always open a tmux session
   ZSH_TMUX_AUTOSTART=true
