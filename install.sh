@@ -29,7 +29,7 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/too
 ZSH="$HOME_DIR/.oh-my-zsh"
 
 # Create symlinks for .zshrc and .tmux.conf in the home directory (assuming they are in the same directory as this script)
-log "[3/6] Creating symlinks for .zshrc and .tmux.conf..."
+log "[3/6] Creating symlinks..."
 ln -sf "$(pwd)/.zshrc" $HOME_DIR/.zshrc
 ln -sf "$(pwd)/.tmux.conf" $HOME_DIR/.tmux.conf
 ln -sf "$(pwd)/.p10k.zsh" $HOME_DIR/.p10k.zsh
