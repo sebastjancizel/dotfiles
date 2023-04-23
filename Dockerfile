@@ -8,7 +8,7 @@ RUN usermod -d /guests/test test
 
 # Install basic utilities
 RUN apt-get update && \
-    apt-get install -y git curl vim tmux sudo
+    apt-get install -y git curl vim tmux sudo tree
 
 # Install fd, rg, fzf, ag (silver surfer)
 RUN apt-get install -y fd-find ripgrep silversearcher-ag bat
