@@ -1,3 +1,4 @@
+ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="powerlevel10k/powerlevel10k"
 
 DEFAULT_USER=`whoami`
@@ -16,7 +17,7 @@ plugins=(
 )
 
 if [[ `uname` == "Darwin" ]]; then
-  plugins += (macos brew)
+  plugins+=(macos brew)
 fi
 
 if [[ -n "$SSH_CONNECTION" ]]; then
@@ -61,3 +62,9 @@ _fzf_comprun() {
 # Aliases
 alias tmux="tmux -u"
 alias gfu="git fetch upstream"
+
+alias zshconfig="vim ~/.zshrc"
+
+# Update path
+export PATH="~/.local/bin:$PATH"
+

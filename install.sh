@@ -34,11 +34,6 @@ ln -sf "$(pwd)/.zshrc" $HOME_DIR/.zshrc
 ln -sf "$(pwd)/.tmux.conf" $HOME_DIR/.tmux.conf
 ln -sf "$(pwd)/.p10k.zsh" $HOME_DIR/.p10k.zsh
 
-
-# Prepend 'export ZSH=...' to the start of .zshrc
-echo -e "export ZSH=\"$ZSH\"\n$(cat $HOME_DIR/.zshrc)" > $HOME_DIR/.zshrc.tmp
-mv $HOME_DIR/.zshrc.tmp $HOME_DIR/.zshrc
-
 # Install fzf
 log "[4/6] Installing fzf..."
 git clone --depth 1 --quiet https://github.com/junegunn/fzf.git $HOME_DIR/.fzf
