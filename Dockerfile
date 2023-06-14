@@ -15,7 +15,5 @@ RUN useradd -m -s /bin/zsh test && \
 USER test
 WORKDIR /home/test
 
-COPY . .
-
 # Set the entrypoint to start an interactive Zsh session
 ENTRYPOINT ["/bin/zsh"]

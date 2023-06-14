@@ -21,18 +21,17 @@ lvim.format_on_save = {
 lvim.leader = "space"
 -- add your own keymapping
 lvim.keys.normal_mode["<C-s>"] = ":w<cr>"
-lvim.keys.insert_mode["jk"] = "<Esc>"
+lvim.keys.insert_mode["jk"] = "<esc>"
 
 -- lvim.keys.normal_mode["<S-l>"] = ":BufferLineCycleNext<CR>"
 -- lvim.keys.normal_mode["<S-h>"] = ":BufferLineCyclePrev<CR>"
 
 -- -- Use which-key to add extra bindings with the leader-key prefix
 -- lvim.builtin.which_key.mappings["W"] = { "<cmd>noautocmd w<cr>", "Save without formatting" }
-lvim.builtin.which_key.mappings["P"] = { "<cmd>Telescope projects<CR>", "Projects" }
-lvim.builtin.which_key.mappings["B"] = { "<cmd>Telescope buffers<CR>", "Buffers" }
+-- lvim.builtin.which_key.mappings["P"] = { "<cmd>Telescope projects<CR>", "Projects" }
 
 -- -- Change theme settings
-lvim.colorscheme = "gruvbox-material"
+lvim.colorscheme = "catppuccin-mocha"
 
 lvim.builtin.alpha.active = true
 lvim.builtin.alpha.mode = "dashboard"
@@ -46,7 +45,7 @@ lvim.builtin.treesitter.auto_install = true
 -- lvim.builtin.treesitter.ignore_install = { "haskell" }
 
 -- -- always installed on startup, useful for parsers without a strict filetype
--- lvim.builtin.treesitter.ensure_installed = { "comment", "markdown_inline", "regex" }
+lvim.builtin.treesitter.ensure_installed = { "comment", "markdown_inline", "regex" }
 
 -- -- generic LSP settings <https://www.lunarvim.org/docs/languages#lsp-support>
 
@@ -102,7 +101,6 @@ lvim.builtin.treesitter.auto_install = true
 --     },
 -- }
 --
--- Fix the pesky offset encoding problem with clang
 vim.list_extend(lvim.lsp.automatic_configuration.skipped_servers, { "clangd" })
 local capabilities = require("lvim.lsp").common_capabilities()
 capabilities.offsetEncoding = { "utf-16" }
@@ -113,21 +111,10 @@ lvim.plugins = {
   {
     "sainnhe/gruvbox-material"
   },
+  { "catppuccin/nvim", name = "catppuccin" },
   {
     "github/copilot.vim"
   },
-  -- {
-  --   'junegunn/fzf',
-  --   build = function()
-  --     vim.fn['fzf#install']()
-  --   end
-  -- },
-  -- {
-  --   'junegunn/fzf.vim',
-  --   config = function()
-  --     lvim.builtin.which_key.mappings["B"] = { "<cmd>Buffers<cr>", "List buffers" }
-  --   end
-  -- },
   {
     "phaazon/hop.nvim",
     event = "BufRead",
