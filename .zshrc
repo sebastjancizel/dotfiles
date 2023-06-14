@@ -63,6 +63,15 @@ _fzf_comprun() {
 alias tmux="tmux -u"
 alias gfu="git fetch upstream"
 
+gch() {
+  if [ $# -eq 0 ]
+  then
+    git branch | fzf | xargs -I {} git checkout {};
+  else
+    git branch | fzf -q "$1" | xargs -I {} git checkout {};
+  fi
+}
+
 alias zshconfig="vim ~/.zshrc"
 
 # Update path
