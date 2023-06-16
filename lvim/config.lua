@@ -28,7 +28,14 @@ lvim.keys.insert_mode["jk"] = "<esc>"
 
 -- -- Use which-key to add extra bindings with the leader-key prefix
 -- lvim.builtin.which_key.mappings["W"] = { "<cmd>noautocmd w<cr>", "Save without formatting" }
--- lvim.builtin.which_key.mappings["P"] = { "<cmd>Telescope projects<CR>", "Projects" }
+lvim.builtin.which_key.mappings["P"] = { "<cmd>Telescope projects<CR>", "Projects" }
+lvim.builtin.which_key.mappings["Q"] = { "<cmd>qall<CR>", "Quit All" }
+lvim.builtin.which_key.mappings["D"] = {
+  name = "DiffView",
+  h = { "<cmd>DiffviewFileHistory %<cr>", "File History" },
+  c = { "<cmd>DiffviewClose <cr>", "Close" },
+  o = { "<cmd>lua DiffviewOpenCustom()<cr>", "Open" }
+}
 
 -- -- Change theme settings
 lvim.colorscheme = "catppuccin-mocha"
@@ -41,8 +48,6 @@ lvim.builtin.nvimtree.setup.renderer.icons.show.git = true
 
 -- Automatically install missing parsers when entering buffer
 lvim.builtin.treesitter.auto_install = true
-
--- lvim.builtin.treesitter.ignore_install = { "haskell" }
 
 -- -- always installed on startup, useful for parsers without a strict filetype
 lvim.builtin.treesitter.ensure_installed = { "comment", "markdown_inline", "regex" }
@@ -127,3 +132,10 @@ lvim.plugins = {
 --     require("nvim-treesitter.highlight").attach(0, "bash")
 --   end,
 -- })
+--
+-- Custom functions
+function DiffviewOpenCustom()
+  local arg1 = vim.fn.input('Enter first argument: ')
+  local arg2 = vim.fn.input('Enter second argument: ')
+  vim.cmd('DiffviewOpen ' .. arg1 .. ' ' .. arg2)
+end
