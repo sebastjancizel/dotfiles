@@ -122,6 +122,13 @@ lvim.plugins = {
     "sindrets/diffview.nvim",
     event = "BufRead",
   },
+  {
+    "windwp/nvim-spectre",
+    event = "BufRead",
+    config = function()
+      require("spectre").setup()
+    end,
+  },
 }
 
 -- -- Autocommands (`:help autocmd`) <https://neovim.io/doc/user/autocmd.html>
