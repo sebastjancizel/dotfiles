@@ -53,11 +53,13 @@ formatters.setup {
 }
 
 -- -- Additional Plugins <https://www.lunarvim.org/docs/plugins#user-plugins>
-vim.list_extend(lvim.lsp.automatic_configuration.skipped_servers, { "clangd" })
-local capabilities = require("lvim.lsp").common_capabilities()
-capabilities.offsetEncoding = { "utf-16" }
-local opts = { capabilities = capabilities }
-require("lvim.lsp.manager").setup("clangd", opts)
+if os.execute("which clangd") == 0 then
+  vim.list_extend(lvim.lsp.automatic_configuration.skipped_servers, { "clangd" })
+  local capabilities = require("lvim.lsp").common_capabilities()
+  capabilities.offsetEncoding = { "utf-16" }
+  local opts = { capabilities = capabilities }
+  require("lvim.lsp.manager").setup("clangd", opts)
+end
 
 lvim.plugins = {
   {
