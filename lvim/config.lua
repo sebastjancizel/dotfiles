@@ -61,35 +61,6 @@ if os.execute("which clangd") == 0 then
   require("lvim.lsp.manager").setup("clangd", opts)
 end
 
-lvim.plugins = {
-  {
-    "sainnhe/gruvbox-material"
-  },
-  { "catppuccin/nvim", name = "catppuccin" },
-  {
-    "github/copilot.vim"
-  },
-  {
-    "phaazon/hop.nvim",
-    event = "BufRead",
-    config = function()
-      require("hop").setup()
-      vim.api.nvim_set_keymap("n", "T", ":HopChar2<cr>", { silent = true })
-      vim.api.nvim_set_keymap("n", "t", ":HopWord<cr>", { silent = true })
-    end,
-  },
-  {
-    "sindrets/diffview.nvim",
-    event = "BufRead",
-  },
-  {
-    "windwp/nvim-spectre",
-    event = "BufRead",
-    config = function()
-      require("spectre").setup()
-    end,
-  },
-}
 
 -- Custom functions
 function DiffviewOpenCustom()
@@ -98,4 +69,5 @@ function DiffviewOpenCustom()
   vim.cmd('DiffviewOpen ' .. arg1 .. ' ' .. arg2)
 end
 
-reload "user.copilot"
+require("user.copilot")
+require("user.plugins")
