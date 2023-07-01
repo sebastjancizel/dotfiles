@@ -15,7 +15,7 @@ log "[1/7] Installing basic utilities..."
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     sudo apt-get update >/dev/null
     export DEBIAN_FRONTEND=noninteractive
-    sudo apt-get install -yq git curl vim tmux sudo tree fd-find ripgrep silversearcher-ag bat zsh >/dev/null
+    sudo apt-get install -yq dialog git curl vim tmux sudo tree fd-find ripgrep silversearcher-ag bat zsh >/dev/null
     # Create a symlink to make bat accessible with the bat command
     sudo ln -s /usr/bin/batcat /usr/bin/bat >/dev/null
 elif [[ "$OSTYPE" == "darwin"* ]]; then
