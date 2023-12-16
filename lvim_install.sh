@@ -12,7 +12,7 @@ log "[1/4] Installing basic utilities and Neovim..."
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
     sudo apt-get update >/dev/null
     sudo apt-get install -y git curl nodejs npm python3-pip >/dev/null
-    sudo apt-get install -y neovim >/dev/null
+    sudo snap install nvim --classic >/dev/null
 elif [[ "$OSTYPE" == "darwin"* ]]; then
     brew install git curl node npm python3 neovim >/dev/null
 fi
