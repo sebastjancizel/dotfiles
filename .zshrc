@@ -74,7 +74,29 @@ gch() {
 }
 
 alias zshconfig="vim ~/.zshrc"
+alias chrome="Open -a 'Google Chrome'"
+alias lvim="~/.local/bin/lvim"
+alias ls_="ls"
+alias sshconf="vim ~/.ssh/config"
+alias mm="micromamba"
 
 # Update path
 export PATH="~/.local/bin:$PATH"
+
+
+# >>> mamba initialize >>>
+# !! Contents within this block are managed by 'mamba init' !!
+export MAMBA_EXE='/opt/homebrew/opt/micromamba/bin/micromamba';
+export MAMBA_ROOT_PREFIX='/Users/sebastjancizel/micromamba';
+__mamba_setup="$("$MAMBA_EXE" shell hook --shell zsh --root-prefix "$MAMBA_ROOT_PREFIX" 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__mamba_setup"
+else
+    alias micromamba="$MAMBA_EXE"  # Fallback on help from mamba activate
+fi
+unset __mamba_setup
+# <<< mamba initialize <<<
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+micromamba activate base
 
