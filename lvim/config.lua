@@ -2,12 +2,13 @@
 vim.opt.shiftwidth = 2
 vim.opt.tabstop = 2
 vim.opt.relativenumber = true
+vim.opt.timeoutlen = 250
 
 -- general
 lvim.log.level = "warn"
 lvim.format_on_save = {
   enabled = true,
-  pattern = { "*.lua", "*.py", "*.c", ".h" },
+  pattern = { "*.lua", "*.py", "*.c", ".h", "*.cpp" },
   timeout = 1000,
 }
 -- to disable icons and use a minimalist setup, uncomment the following
@@ -35,14 +36,17 @@ lvim.colorscheme = "catppuccin-mocha"
 lvim.builtin.alpha.active = true
 lvim.builtin.alpha.mode = "dashboard"
 lvim.builtin.terminal.active = true
-lvim.builtin.nvimtree.setup.view.side = "left"
+lvim.builtin.nvimtree.setup.view.side = "right"
 lvim.builtin.nvimtree.setup.renderer.icons.show.git = true
 
 -- Automatically install missing parsers when entering buffer
 lvim.builtin.treesitter.auto_install = true
 
 -- always installed on startup, useful for parsers without a strict filetype
-lvim.builtin.treesitter.ensure_installed = { "comment", "markdown_inline", "regex", "python" }
+lvim.builtin.treesitter.ensure_installed = { "comment", "markdown_inline", "regex", "python", "c" }
+lvim.builtin.telescope.defaults.layout_config.preview_cutoff = 75
+
+lvim.builtin.mason.ensure_installed = { "clangd" }
 
 -- set a formatter, this will override the language server formatting capabilities (if it exists)
 local formatters = require "lvim.lsp.null-ls.formatters"
@@ -69,5 +73,5 @@ function DiffviewOpenCustom()
   vim.cmd('DiffviewOpen ' .. arg1 .. ' ' .. arg2)
 end
 
-require("user.copilot")
 require("user.plugins")
+require("user.copilot")
