@@ -2,7 +2,7 @@
 
 # Function to log messages in cyan
 log() {
-    echo -e "\033[0;36m$1\033[0m"
+	echo -e "\033[0;36m$1\033[0m"
 }
 
 log "Starting installation..."
@@ -13,21 +13,21 @@ HOME_DIR=$HOME
 # Install basic utilities
 log "[1/7] Installing basic utilities..."
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    sudo apt-get update >/dev/null
-    export DEBIAN_FRONTEND=noninteractive
-    sudo apt-get install -yq dialog git curl vim tmux sudo tree fd-find ripgrep silversearcher-ag bat zsh exa >/dev/null
-    # Create a symlink to make bat accessible with the bat command
-    sudo ln -s /usr/bin/batcat /usr/bin/bat >/dev/null
+	sudo apt update >/dev/null
+	export DEBIAN_FRONTEND=noninteractive
+	sudo apt install -yq dialog git curl vim tmux sudo tree fd-find ripgrep silversearcher-ag bat zsh exa
+	# Create a symlink to make bat accessible with the bat command
+	sudo ln -s /usr/bin/batcat /usr/bin/bat >/dev/null
 elif [[ "$OSTYPE" == "darwin"* ]]; then
-    brew install git curl vim tmux tree fd ripgrep the_silver_searcher bat zsh exa >/dev/null
+	brew install git curl vim tmux tree fd ripgrep the_silver_searcher bat zsh git-delta
 fi
 
 # Install neovim
 log "[2/7] Installing neovim..."
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    sudo apt-get install -y neovim >/dev/null
+	sudo apt-get install -y neovim >/dev/null
 elif [[ "$OSTYPE" == "darwin"* ]]; then
-    brew install neovim >/dev/null
+	brew install neovim >/dev/null
 fi
 
 # Install Oh My Zsh
@@ -62,4 +62,3 @@ log "=>Cloning fzf-tab"
 git clone --quiet https://github.com/Aloxaf/fzf-tab ${ZSH_CUSTOM:-$ZSH/custom}/plugins/fzf-tab
 
 log "[7/7] Installation complete"
-

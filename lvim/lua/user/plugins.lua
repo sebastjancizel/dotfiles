@@ -1,5 +1,6 @@
 lvim.plugins = {
   { "catppuccin/nvim", name = "catppuccin" },
+  { "morhetz/gruvbox", name = "gruvbox" },
   { "tpope/vim-repeat" },
   {
     "zbirenbaum/copilot.lua",
@@ -13,6 +14,22 @@ lvim.plugins = {
         p = { "<cmd>Copilot panel<cr>", "Copilot panel" },
       }
     end,
+  },
+  -- lazy.nvim
+  {
+    "folke/noice.nvim",
+    event = "VeryLazy",
+    opts = {
+      -- add any options here
+    },
+    dependencies = {
+      -- if you lazy-load any plugin below, make sure to add proper `module="..."` entries
+      "MunifTanjim/nui.nvim",
+      -- OPTIONAL:
+      --   `nvim-notify` is only needed, if you want to use the notification view.
+      --   If not available, we use `mini` as the fallback
+      "rcarriga/nvim-notify",
+    }
   },
   {
     "zbirenbaum/copilot-cmp",
@@ -39,4 +56,23 @@ lvim.plugins = {
     "sindrets/diffview.nvim",
     event = "BufRead",
   },
+  {
+    "jackMort/ChatGPT.nvim",
+    event = "VeryLazy",
+    dependencies = {
+      "MunifTanjim/nui.nvim",
+      "nvim-lua/plenary.nvim",
+      "nvim-telescope/telescope.nvim"
+    }
+  },
+  {
+    "amitds1997/remote-nvim.nvim",
+    version = "*",                     -- Pin to GitHub releases
+    dependencies = {
+      "nvim-lua/plenary.nvim",         -- For standard functions
+      "MunifTanjim/nui.nvim",          -- To build the plugin UI
+      "nvim-telescope/telescope.nvim", -- For picking b/w different remote methods
+    },
+    config = true,
+  }
 }
