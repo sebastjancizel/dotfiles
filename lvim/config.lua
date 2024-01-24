@@ -19,11 +19,12 @@ lvim.leader = "space"
 lvim.keys.normal_mode["<C-s>"] = ":w<cr>"
 lvim.keys.insert_mode["jk"] = "<esc>"
 
+local which_key = lvim.builtin.which_key
 -- -- Use which-key to add extra bindings with the leader-key prefix
-lvim.builtin.which_key.mappings["W"] = { "<cmd>noautocmd w<cr>", "Save without formatting" }
-lvim.builtin.which_key.mappings["P"] = { "<cmd>Telescope projects<CR>", "Projects" }
-lvim.builtin.which_key.mappings["Q"] = { "<cmd>qall<CR>", "Quit All" }
-lvim.builtin.which_key.mappings["D"] = {
+which_key.mappings["W"] = { "<cmd>noautocmd w<cr>", "Save without formatting" }
+which_key.mappings["P"] = { "<cmd>Telescope projects<CR>", "Projects" }
+which_key.mappings["Q"] = { "<cmd>qall<CR>", "Quit All" }
+which_key.mappings["D"] = {
   name = "DiffView",
   h = { "<cmd>DiffviewFileHistory %<cr>", "File History" },
   c = { "<cmd>DiffviewClose <cr>", "Close" },
@@ -45,8 +46,9 @@ lvim.builtin.treesitter.auto_install = true
 -- always installed on startup, useful for parsers without a strict filetype
 lvim.builtin.treesitter.ensure_installed = { "comment", "markdown_inline", "regex", "python", "c" }
 lvim.builtin.telescope.defaults.layout_config.preview_cutoff = 75
-
 lvim.builtin.mason.ensure_installed = { "clangd" }
+
+lvim.builtin.lualine.options.section_separators = { left = '', right = '' }
 
 -- set a formatter, this will override the language server formatting capabilities (if it exists)
 local formatters = require "lvim.lsp.null-ls.formatters"
@@ -75,3 +77,4 @@ end
 
 require("user.plugins")
 require("user.copilot")
+require("user.chatgpt")
