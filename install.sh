@@ -28,8 +28,9 @@ fi
 
 # Install neovim
 log "[2/7] Installing neovim..."
-git clone https://github.com/neovim/neovim --branch nightly --depth 1
-pushd neovim && make CMAKE_BUILD_TYPE=RelWithDebInfo 1>/dev/null
+mkdir $HOME_DIR/neovim
+git clone https://github.com/neovim/neovim $HOME_DIR/neovim --branch nightly --depth 1
+pushd $HOME_DIR/neovim && make CMAKE_BUILD_TYPE=RelWithDebInfo 1>/dev/null
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
 	pushd build && cpack -G DEB && sudo dpkg -i nvim-linux64.deb 1>/dev/null
 	popd
@@ -37,8 +38,8 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
 	sudo make install 1>/dev/null
 fi
 popd
-git clone https://github.com/LazyVim/starter ~/.config/nvim
-rm -rf ~/.config/nvim/.git
+git clone https://github.com/LazyVim/starter $HOME_DIR/.config/nvim
+rm -rf $HOME_DIR/.config/nvim/.git
 
 # Install Oh My Zsh
 log "[3/7] Installing Oh My Zsh..."
@@ -62,6 +63,7 @@ $HOME_DIR/.fzf/install --all >/dev/null
 log "[6/7] Installing zsh plugins..."
 log "=>Cloning powerlevel10k"
 git clone --depth=1 --quiet https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$ZSH/custom}/themes/powerlevel10k
+
 log "=>Cloning zsh-autosuggestions"
 git clone --quiet https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-$ZSH/custom}/plugins/zsh-autosuggestions
 log "=>Cloning zsh-history-substring-search"
