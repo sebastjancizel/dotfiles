@@ -29,12 +29,12 @@ fi
 # Install neovim
 log "[2/7] Installing neovim..."
 git clone https://github.com/neovim/neovim --branch nightly --depth 1
-pushd neovim && make CMAKE_BUILD_TYPE=RelWithDebInfo
+pushd neovim && make CMAKE_BUILD_TYPE=RelWithDebInfo 1>/dev/null
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-	pushd build && cpack -G DEB && sudo dpkg -i nvim-linux64.deb
+	pushd build && cpack -G DEB && sudo dpkg -i nvim-linux64.deb 1>/dev/null
 	popd
 elif [[ "$OSTYPE" == "darwin"* ]]; then
-	sudo make install
+	sudo make install 1>/dev/null
 fi
 popd
 git clone https://github.com/LazyVim/starter ~/.config/nvim
