@@ -9,6 +9,7 @@ log "Starting installation..."
 
 # Set the home directory
 HOME_DIR=$HOME
+export PATH="$HOME/.local/bin:$PATH"
 
 # Install basic utilities
 log "[1/7] Installing basic utilities..."
@@ -24,11 +25,16 @@ fi
 
 # Install neovim
 log "[2/7] Installing neovim..."
+git clone https://github.com/neovim/neovim --branch nightly --depth 1
+pushd neovim && make CMAKE_BUILD_TYPE=RelWithDebInfo 1>/dev/null
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
 	sudo apt-get install -y neovim >/dev/null
 elif [[ "$OSTYPE" == "darwin"* ]]; then
 	brew install neovim >/dev/null
 fi
+popd
+git clone https://github.com/LazyVim/starter ~/.config/nvim
+rm -rf ~/.config/nvim/.git
 
 # Install Oh My Zsh
 log "[3/7] Installing Oh My Zsh..."
