@@ -1,0 +1,26 @@
+name: Test Install Script
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test-installation:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Make install.sh executable
+      run: chmod +x ./install.sh
+
+    - name: Run install.sh
+      run: ./install.sh
