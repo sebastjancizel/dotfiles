@@ -23,16 +23,16 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
 	sudo ln -s /usr/bin/batcat /usr/bin/bat >/dev/null
 	pip3 install cmake
 elif [[ "$OSTYPE" == "darwin"* ]]; then
-	brew install git curl vim tmux tree fd ripgrep the_silver_searcher bat zsh git-delta cmake ninja pipx 1>/dev/null
+	brew install git curl vim tmux tree fd ripgrep the_silver_searcher bat zsh git-delta cmake ninja pipx eza 1>/dev/null
 fi
 
 # Install neovim
 log "[2/7] Installing neovim from source..."
-git clone https://github.com/neovim/neovim --branch nightly --depth 1
+git clone https://github.com/neovim/neovim --branch nightly --depth 1 --quiet
 pushd neovim && make CMAKE_BUILD_TYPE=RelWithDebInfo 1>/dev/null
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
 	pushd build && cpack -G DEB && sudo dpkg -i nvim-linux64.deb 1>/dev/null
-	popd
+	popd >/dev/null
 elif [[ "$OSTYPE" == "darwin"* ]]; then
 	sudo make install 1>/dev/null
 fi
