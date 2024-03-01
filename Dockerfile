@@ -2,9 +2,9 @@
 FROM ubuntu:latest
 
 # Install required packages and apt-utils
-RUN apt-get update && \
-    apt-get install -y apt-utils && \
-    apt-get install -y curl git zsh sudo
+RUN apt update && \
+    apt install -y apt-utils && \
+    apt install -y curl git zsh sudo
 
 # Create a new user "test" with sudo privileges
 RUN useradd -m -s /bin/zsh test && \
@@ -14,6 +14,8 @@ RUN useradd -m -s /bin/zsh test && \
 # Set the user and home directory
 USER test
 WORKDIR /home/test
+
+RUN git clone https://github.com/sebastjancizel/dotfiles.git
 
 # Set the entrypoint to start an interactive Zsh session
 ENTRYPOINT ["/bin/zsh"]
