@@ -27,10 +27,9 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
 fi
 
 # Install neovim
-log "[2/7] Installing neovim..."
-mkdir $HOME_DIR/neovim
-git clone https://github.com/neovim/neovim $HOME_DIR/neovim --branch nightly --depth 1
-pushd $HOME_DIR/neovim && make CMAKE_BUILD_TYPE=RelWithDebInfo 1>/dev/null
+log "[2/7] Installing neovim from source..."
+git clone https://github.com/neovim/neovim --branch nightly --depth 1
+pushd neovim && make CMAKE_BUILD_TYPE=RelWithDebInfo 1>/dev/null
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
 	pushd build && cpack -G DEB && sudo dpkg -i nvim-linux64.deb 1>/dev/null
 	popd
@@ -53,6 +52,7 @@ log "[4/7] Creating symlinks..."
 ln -sf "$(pwd)/.zshrc" "$HOME_DIR/.zshrc"
 ln -sf "$(pwd)/.tmux.conf" "$HOME_DIR/.tmux.conf"
 ln -sf "$(pwd)/.p10k.zsh" "$HOME_DIR/.p10k.zsh"
+ln -sf "$(pwd)/.config/nvim" "$HOME_DIR/.config"
 
 # Install fzf
 log "[5/7] Installing fzf..."
