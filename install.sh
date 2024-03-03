@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -e
 # Function to log messages in cyan
 log() {
 	echo -e "\033[0;36m$1\033[0m"
@@ -7,9 +8,12 @@ log() {
 
 log "Starting installation..."
 
-# Set the home directory
-HOME_DIR=$HOME
 export PATH="$HOME/.local/bin:$PATH"
+# Check if HOME_DIR is set else set it to $HOME
+# This allows the user to pass a custom home directory as an environment variable
+if [ -z "$HOME_DIR" ]; then
+	HOME_DIR=$HOME
+fi
 
 # Install basic utilities
 log "[1/7] Installing basic utilities..."
@@ -37,8 +41,6 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
 	sudo make install 1>/dev/null
 fi
 popd
-git clone https://github.com/LazyVim/starter $HOME_DIR/.config/nvim
-rm -rf $HOME_DIR/.config/nvim/.git
 
 # Install Oh My Zsh
 log "[3/7] Installing Oh My Zsh..."
@@ -52,7 +54,9 @@ log "[4/7] Creating symlinks..."
 ln -sf "$(pwd)/.zshrc" "$HOME_DIR/.zshrc"
 ln -sf "$(pwd)/.tmux.conf" "$HOME_DIR/.tmux.conf"
 ln -sf "$(pwd)/.p10k.zsh" "$HOME_DIR/.p10k.zsh"
-ln -sf "$(pwd)/.config/nvim" "$HOME_DIR/.config"
+
+mkdir -p "$HOME_DIR/.config"
+ln -sf "$(pwd)/nvim" "$HOME_DIR/.config/nvim"
 
 # Install fzf
 log "[5/7] Installing fzf..."
