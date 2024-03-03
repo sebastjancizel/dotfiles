@@ -7,9 +7,12 @@ log() {
 
 log "Starting installation..."
 
-# Set the home directory
-HOME_DIR=$HOME
 export PATH="$HOME/.local/bin:$PATH"
+# Check if HOME_DIR is set else set it to $HOME
+# This allows the user to pass a custom home directory as an environment variable
+if [ -z "$HOME_DIR" ]; then
+	HOME_DIR=$HOME
+fi
 
 # Install basic utilities
 log "[1/7] Installing basic utilities..."
@@ -52,7 +55,7 @@ log "[4/7] Creating symlinks..."
 ln -sf "$(pwd)/.zshrc" "$HOME_DIR/.zshrc"
 ln -sf "$(pwd)/.tmux.conf" "$HOME_DIR/.tmux.conf"
 ln -sf "$(pwd)/.p10k.zsh" "$HOME_DIR/.p10k.zsh"
-ln -sf "$(pwd)/.config/nvim" "$HOME_DIR/.config"
+ln -sf "$(pwd)/nvim" "$HOME_DIR/.config"
 
 # Install fzf
 log "[5/7] Installing fzf..."
