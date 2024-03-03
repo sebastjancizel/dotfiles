@@ -55,8 +55,8 @@ ln -sf "$(pwd)/.zshrc" "$HOME_DIR/.zshrc"
 ln -sf "$(pwd)/.tmux.conf" "$HOME_DIR/.tmux.conf"
 ln -sf "$(pwd)/.p10k.zsh" "$HOME_DIR/.p10k.zsh"
 
-mkdir -p "$HOME_DIR/.config/nvim"
-ln -sf "$(pwd)/nvim" "$HOME_DIR/.config"
+mkdir -p "$HOME_DIR/.config"
+ln -sf "$(pwd)/nvim" "$HOME_DIR/.config/nvim"
 
 # Install fzf
 log "[5/7] Installing fzf..."
