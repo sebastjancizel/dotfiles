@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -e
 # Function to log messages in cyan
 log() {
 	echo -e "\033[0;36m$1\033[0m"
@@ -40,8 +41,6 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
 	sudo make install 1>/dev/null
 fi
 popd
-git clone https://github.com/LazyVim/starter $HOME_DIR/.config/nvim
-rm -rf $HOME_DIR/.config/nvim/.git
 
 # Install Oh My Zsh
 log "[3/7] Installing Oh My Zsh..."
