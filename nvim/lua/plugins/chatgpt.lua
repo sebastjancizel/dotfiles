@@ -3,7 +3,6 @@ return {
   event = "VeryLazy",
   config = function()
     require("chatgpt").setup({
-      api_key_cmd = "op read op://personal/OpenAIAPI/credential --no-newline",
       openai_params = {
         model = "gpt-4",
         frequency_penalty = 0,
