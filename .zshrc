@@ -62,7 +62,6 @@ _fzf_comprun() {
 # Aliases
 alias tmux="tmux -u"
 alias gfu="git fetch upstream"
-alias ls="exa"
 
 gch() {
   if [ $# -eq 0 ]

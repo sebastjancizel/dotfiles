@@ -20,25 +20,25 @@ log "[1/7] Installing basic utilities..."
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
 	sudo apt update >/dev/null
 	export DEBIAN_FRONTEND=noninteractive
-	sudo apt install -yq dialog git curl vim tmux sudo python3 python3-pip build-essential make file 1>/dev/null
-	sudo apt install -yq ninja-build gettext unzip 1>/dev/null
-	sudo apt install -yq fd-find ripgrep silversearcher-ag bat zsh exa tree 1>/dev/null
+	sudo apt install -yq dialog git curl vim tmux sudo python3 python3-pip build-essential make file
+	sudo apt install -yq ninja-build gettext unzip
+	sudo apt install -yq fd-find ripgrep silversearcher-ag bat zsh tree
 	# Create a symlink to make bat accessible with the bat command
-	sudo ln -s /usr/bin/batcat /usr/bin/bat >/dev/null
+	sudo ln -s /usr/bin/batcat /usr/bin/bat
 	pip3 install cmake
 elif [[ "$OSTYPE" == "darwin"* ]]; then
-	brew install git curl vim tmux tree fd ripgrep the_silver_searcher bat zsh git-delta cmake ninja pipx eza 1>/dev/null
+	brew install git curl vim tmux tree fd ripgrep the_silver_searcher bat zsh git-delta cmake ninja pipx eza
 fi
 
 # Install neovim
 log "[2/7] Installing neovim from source..."
 git clone https://github.com/neovim/neovim --branch nightly --depth 1 --quiet
-pushd neovim && make CMAKE_BUILD_TYPE=RelWithDebInfo 1>/dev/null
+pushd neovim && make CMAKE_BUILD_TYPE=RelWithDebInfo
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-	pushd build && cpack -G DEB && sudo dpkg -i nvim-linux64.deb 1>/dev/null
+	pushd build && cpack -G DEB && sudo dpkg -i nvim-linux64.deb
 	popd >/dev/null
 elif [[ "$OSTYPE" == "darwin"* ]]; then
-	sudo make install 1>/dev/null
+	sudo make install
 fi
 popd
 
