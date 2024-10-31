@@ -14,3 +14,5 @@ map(
   "<cmd>noautocmd w<CR>",
   { noremap = true, silent = true, desc = "Write without triggering autocommands" }
 )
+
+map("n", "gh", "<cmd>ClangdSwitchSourceHeader<CR>", { noremap = true, silent = true, desc = "Goto header" })

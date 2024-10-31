@@ -28,8 +28,6 @@ local function setup()
       local newBindings = {
         ["<leader>a"] = { name = "ChatGPT" },
       }
-      -- Register the new keybindings with which-key
-      wk.register(newBindings, { mode = { "n", "v" } })
     end,
     dependencies = {
       "MunifTanjim/nui.nvim",

@@ -101,4 +101,7 @@ fi
 unset __mamba_setup
 # <<< mamba initialize <<<
 
+source ~/.profile
 mm activate
+
+. "$HOME/.cargo/env"

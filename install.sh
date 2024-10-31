@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -e
 # Function to log messages in cyan
 log() {
 	echo -e "\033[0;36m$1\033[0m"
@@ -7,34 +8,37 @@ log() {
 
 log "Starting installation..."
 
-# Set the home directory
-HOME_DIR=$HOME
 export PATH="$HOME/.local/bin:$PATH"
+# Check if HOME_DIR is set else set it to $HOME
+# This allows the user to pass a custom home directory as an environment variable
+if [ -z "$HOME_DIR" ]; then
+	HOME_DIR=$HOME
+fi
 
 # Install basic utilities
 log "[1/7] Installing basic utilities..."
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
 	sudo apt update >/dev/null
 	export DEBIAN_FRONTEND=noninteractive
-	sudo apt install -yq dialog git curl vim tmux sudo python3 python3-pip build-essential make file
-	sudo apt install -yq ninja-build gettext unzip
-	sudo apt install -yq fd-find ripgrep silversearcher-ag bat zsh tree
+	sudo apt install -yq dialog git curl vim tmux sudo python3 python3-pip build-essential make file 1>/dev/null
+	sudo apt install -yq ninja-build gettext unzip 1>/dev/null
+	sudo apt install -yq fd-find ripgrep silversearcher-ag bat zsh exa tree 1>/dev/null
 	# Create a symlink to make bat accessible with the bat command
-	sudo ln -s /usr/bin/batcat /usr/bin/bat
+	sudo ln -s /usr/bin/batcat /usr/bin/bat >/dev/null
 	pip3 install cmake
 elif [[ "$OSTYPE" == "darwin"* ]]; then
-	brew install git curl vim tmux tree fd ripgrep the_silver_searcher bat zsh git-delta cmake ninja pipx eza
+	brew install git curl vim tmux tree fd ripgrep the_silver_searcher bat zsh git-delta cmake ninja pipx eza 1>/dev/null
 fi
 
 # Install neovim
 log "[2/7] Installing neovim from source..."
 git clone https://github.com/neovim/neovim --branch nightly --depth 1 --quiet
-pushd neovim && make CMAKE_BUILD_TYPE=RelWithDebInfo
+pushd neovim && make CMAKE_BUILD_TYPE=RelWithDebInfo 1>/dev/null
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-	pushd build && cpack -G DEB && sudo dpkg -i nvim-linux64.deb
+	pushd build && cpack -G DEB && sudo dpkg -i nvim-linux64.deb 1>/dev/null
 	popd >/dev/null
 elif [[ "$OSTYPE" == "darwin"* ]]; then
-	sudo make install
+	sudo make install 1>/dev/null
 fi
 popd
 
@@ -50,7 +54,9 @@ log "[4/7] Creating symlinks..."
 ln -sf "$(pwd)/.zshrc" "$HOME_DIR/.zshrc"
 ln -sf "$(pwd)/.tmux.conf" "$HOME_DIR/.tmux.conf"
 ln -sf "$(pwd)/.p10k.zsh" "$HOME_DIR/.p10k.zsh"
-ln -sf "$(pwd)/.config/nvim" "$HOME_DIR/.config"
+
+mkdir -p "$HOME_DIR/.config"
+ln -sf "$(pwd)/nvim" "$HOME_DIR/.config/nvim"
 
 # Install fzf
 log "[5/7] Installing fzf..."
