@@ -30,6 +30,7 @@ source $ZSH/oh-my-zsh.sh
 # DEFAULT SETTINGS
 export EDITOR=vim #vim ftw
 export TERM=xterm-256color
+export TERMINFO=/usr/share/terminfo
 
 # FZF CONFIG
 export FZF_DEFAULT_COMMAND="rg --files --hidden -g'!.git'"
@@ -62,6 +63,7 @@ _fzf_comprun() {
 # Aliases
 alias tmux="tmux -u"
 alias gfu="git fetch upstream"
+alias ls="eza"
 
 gch() {
   if [ $# -eq 0 ]
@@ -73,7 +75,33 @@ gch() {
 }
 
 alias zshconfig="vim ~/.zshrc"
+alias chrome="Open -a 'Google Chrome'"
+alias lvim="~/.local/bin/lvim"
+alias ls_="ls"
+alias sshconf="vim ~/.ssh/config"
+alias mm="micromamba"
 
 # Update path
 export PATH="~/.local/bin:$PATH"
+export PATH="$HOME/.rbenv/bin:$PATH"
+eval "$(rbenv init -)"
 
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# >>> mamba initialize >>>
+# !! Contents within this block are managed by 'mamba init' !!
+export MAMBA_EXE='/opt/homebrew/bin/micromamba';
+export MAMBA_ROOT_PREFIX='/Users/sebastjancizel/micromamba';
+__mamba_setup="$("$MAMBA_EXE" shell hook --shell zsh --root-prefix "$MAMBA_ROOT_PREFIX" 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__mamba_setup"
+else
+    alias micromamba="$MAMBA_EXE"  # Fallback on help from mamba activate
+fi
+unset __mamba_setup
+# <<< mamba initialize <<<
+
+source ~/.profile
+mm activate
+
+. "$HOME/.cargo/env"
