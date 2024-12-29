@@ -59,7 +59,7 @@ local function setup()
   }
 end
 
-if false then
+if true then
   return {}
 else
   return setup()

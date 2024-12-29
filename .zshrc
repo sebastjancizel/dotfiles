@@ -63,7 +63,10 @@ _fzf_comprun() {
 # Aliases
 alias tmux="tmux -u"
 alias gfu="git fetch upstream"
-alias ls="eza"
+if command -v eza &> /dev/null; then
+  # if eza is installed alias ls to eza
+  alias ls="eza"
+fi
 
 gch() {
   if [ $# -eq 0 ]
@@ -76,13 +79,10 @@ gch() {
 
 alias zshconfig="vim ~/.zshrc"
 alias chrome="Open -a 'Google Chrome'"
-alias lvim="~/.local/bin/lvim"
-alias ls_="ls"
 alias sshconf="vim ~/.ssh/config"
 alias mm="micromamba"
 
 # Update path
-export PATH="~/.local/bin:$PATH"
 export PATH="$HOME/.rbenv/bin:$PATH"
 eval "$(rbenv init -)"
 
@@ -105,3 +105,4 @@ source ~/.profile
 mm activate
 
 . "$HOME/.cargo/env"
+export PATH="$HOME/.local/bin:$PATH"
