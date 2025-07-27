@@ -41,13 +41,18 @@ if [[ "$OSTYPE" == "linux-gnu"* ]]; then
 	fi
 	
 	log "  => Installing neovim $NVIM_VERSION"
-	NVIM_URL="https://github.com/neovim/neovim/releases/download/${NVIM_VERSION}/nvim-linux64.tar.gz"
+	NVIM_URL="https://github.com/neovim/neovim/releases/download/${NVIM_VERSION}/nvim-linux-x86_64.tar.gz"
 	
-	# Download and install neovim
-	curl -Lo /tmp/nvim-linux64.tar.gz "$NVIM_URL"
-	sudo tar -C /opt -xzf /tmp/nvim-linux64.tar.gz
-	sudo ln -sf /opt/nvim-linux64/bin/nvim /usr/local/bin/nvim
-	rm /tmp/nvim-linux64.tar.gz
+	# Download and install neovim (follow redirects)
+	if curl -sL -o /tmp/nvim-linux-x86_64.tar.gz "$NVIM_URL"; then
+		log "  => Download successful, extracting..."
+		sudo tar -C /opt -xzf /tmp/nvim-linux-x86_64.tar.gz
+		sudo ln -sf /opt/nvim-linux-x86_64/bin/nvim /usr/local/bin/nvim
+		rm /tmp/nvim-linux-x86_64.tar.gz
+	else
+		log "  => Download failed, please check your internet connection"
+		exit 1
+	fi
 	
 	# Verify installation
 	nvim --version >/dev/null && log "  => Neovim installed successfully"
