@@ -81,6 +81,7 @@ fi
 # ------------------------
 export EDITOR=${EDITOR:-vim}
 export TERM=xterm-256color
+export TERMINFO=/usr/share/terminfo
 
 # Set TERMINFO only if the directory exists (common on Linux)
 [[ -d /usr/share/terminfo ]] && export TERMINFO=/usr/share/terminfo
@@ -133,7 +134,6 @@ alias gfu='git fetch upstream'          # Fetch from upstream remote
 alias zshconfig="$EDITOR ~/.zshrc"      # Quick edit of zsh config
 alias sshconf="$EDITOR ~/.ssh/config"   # Quick edit of SSH config
 
-
 # Enhanced ls with eza if available (modern ls replacement)
 if command -v eza &> /dev/null; then
   alias ls='eza'
@@ -164,8 +164,6 @@ if command -v rbenv >/dev/null 2>&1; then
   path_add "$HOME/.rbenv/bin"
   eval "$(rbenv init - zsh)"
 fi
-
-
 
 ## 7.2 Rust toolchain
 [[ -f "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
