@@ -20,27 +20,46 @@ log "[1/7] Installing basic utilities..."
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
 	sudo apt update >/dev/null
 	export DEBIAN_FRONTEND=noninteractive
-	sudo apt install -yq dialog git curl vim tmux sudo python3 python3-pip build-essential make file
-	sudo apt install -yq ninja-build gettext unzip
+	sudo apt install -yq dialog git curl vim tmux sudo python3 python3-pip file
 	sudo apt install -yq fd-find ripgrep silversearcher-ag bat zsh tree
 	# Create a symlink to make bat accessible with the bat command
 	sudo ln -s /usr/bin/batcat /usr/bin/bat
-	pip3 install cmake
 elif [[ "$OSTYPE" == "darwin"* ]]; then
-	brew install git curl vim tmux tree fd ripgrep the_silver_searcher bat zsh git-delta cmake ninja pipx eza
+	brew install git curl vim tmux tree fd ripgrep the_silver_searcher bat zsh git-delta pipx eza
 fi
 
 # Install neovim
-log "[2/7] Installing neovim from source..."
-git clone https://github.com/neovim/neovim --branch nightly --depth 1 --quiet
-pushd neovim && make CMAKE_BUILD_TYPE=RelWithDebInfo
+log "[2/7] Installing neovim (latest stable release)..."
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-	pushd build && cpack -G DEB && sudo dpkg -i nvim-linux64.deb
-	popd >/dev/null
+	# Get the latest stable release URL from GitHub API
+	log "  => Fetching latest neovim release info..."
+	NVIM_VERSION=$(curl -s https://api.github.com/repos/neovim/neovim/releases/latest | grep '"tag_name"' | sed 's/.*"tag_name": *"\([^"]*\)".*/\1/')
+	
+	if [ -z "$NVIM_VERSION" ]; then
+		log "  => Failed to get latest version, using fallback v0.10.2"
+		NVIM_VERSION="v0.10.2"
+	fi
+	
+	log "  => Installing neovim $NVIM_VERSION"
+	NVIM_URL="https://github.com/neovim/neovim/releases/download/${NVIM_VERSION}/nvim-linux-x86_64.tar.gz"
+	
+	# Download and install neovim (follow redirects)
+	if curl -sL -o /tmp/nvim-linux-x86_64.tar.gz "$NVIM_URL"; then
+		log "  => Download successful, extracting..."
+		sudo tar -C /opt -xzf /tmp/nvim-linux-x86_64.tar.gz
+		sudo ln -sf /opt/nvim-linux-x86_64/bin/nvim /usr/local/bin/nvim
+		rm /tmp/nvim-linux-x86_64.tar.gz
+	else
+		log "  => Download failed, please check your internet connection"
+		exit 1
+	fi
+	
+	# Verify installation
+	nvim --version >/dev/null && log "  => Neovim installed successfully"
 elif [[ "$OSTYPE" == "darwin"* ]]; then
-	sudo make install
+	# macOS: use homebrew for latest stable
+	brew install neovim
 fi
-popd
 
 # Install Oh My Zsh
 log "[3/7] Installing Oh My Zsh..."

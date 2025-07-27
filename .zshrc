@@ -1,53 +1,116 @@
-ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME="powerlevel10k/powerlevel10k"
+# ============================================================================
+#  ~/.zshrc  –  portable, documented, self-contained
+# ============================================================================
+# A cross-platform zsh configuration that works on macOS, Linux, and other
+# Unix-like systems. Automatically detects available tools and adjusts
+# configuration accordingly.
+#
+# External dependencies (install via package manager):
+# - oh-my-zsh: framework for managing zsh configuration
+# - powerlevel10k: theme for oh-my-zsh
+# - fzf: command-line fuzzy finder
+# - ripgrep (rg): fast text search tool
+# - bat: cat clone with syntax highlighting
+# - tree: directory listing in tree format
+# - eza: modern replacement for ls (optional)
 
-DEFAULT_USER=`whoami`
+# ------------------------
+# 0. Early path helpers
+# ------------------------
+# Helper function to safely add directories to PATH
+path_add() { 
+  [[ -d "$1" ]] && [[ ":$PATH:" != *":$1:"* ]] && PATH="$1:$PATH"
+}
 
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+# ------------------------
+# 1. Platform detection
+# ------------------------
+IS_MACOS=false
+IS_LINUX=false
+case "$(uname)" in
+  Darwin) IS_MACOS=true ;;
+  Linux)  IS_LINUX=true ;;
+esac
 
-plugins=(
-  tmux
-  git       # good shortcuts for git
-  z         # navigate faster with z 
-  fzf
-  fzf-tab
-  zsh-autosuggestions
-  zsh-syntax-highlighting
-  zsh-history-substring-search
-)
-
-if [[ `uname` == "Darwin" ]]; then
-  plugins+=(macos brew)
+# ------------------------
+# 2. Oh-My-Zsh & Theme setup
+# ------------------------
+ZSH="${ZSH:-$HOME/.oh-my-zsh}"
+if [[ -d "$ZSH" ]]; then
+  ZSH_THEME="powerlevel10k/powerlevel10k"
+  DEFAULT_USER=$(whoami)
+else
+  echo "⚠️  Oh-My-Zsh directory not found at $ZSH – prompt will be basic."
 fi
 
+# Load powerlevel10k configuration if available
+[[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
+
+# ------------------------
+# 3. Plugin configuration
+# ------------------------
+# Base plugins that work across all platforms
+plugins=(
+  git                           # Git shortcuts and status info
+  tmux                         # Tmux integration
+  fzf                          # Fuzzy finder integration
+  fzf-tab                      # Replace tab completion with fzf
+  z                            # Jump to frequently used directories
+  zsh-autosuggestions          # Suggest commands based on history
+  zsh-syntax-highlighting      # Syntax highlighting for commands
+  zsh-history-substring-search # History search with substring matching
+)
+
+# Add platform-specific plugins
+if $IS_MACOS; then
+  plugins+=(macos brew)        # macOS and Homebrew specific commands
+elif $IS_LINUX; then
+  plugins+=(sudo systemd)      # Linux-specific tools
+fi
+
+# Auto-start tmux when connected via SSH (useful for remote development)
 if [[ -n "$SSH_CONNECTION" ]]; then
-  # If SSH connection is detected always open a tmux session
   ZSH_TMUX_AUTOSTART=true
 fi
 
-source $ZSH/oh-my-zsh.sh
+# Load Oh-My-Zsh if available
+[[ -d "$ZSH" ]] && source "$ZSH/oh-my-zsh.sh"
 
-# DEFAULT SETTINGS
-export EDITOR=vim #vim ftw
+# ------------------------
+# 4. Basic environment setup
+# ------------------------
+export EDITOR=${EDITOR:-vim}
 export TERM=xterm-256color
 export TERMINFO=/usr/share/terminfo
 
-# FZF CONFIG
+# Set TERMINFO only if the directory exists (common on Linux)
+[[ -d /usr/share/terminfo ]] && export TERMINFO=/usr/share/terminfo
+
+# ------------------------
+# 5. FZF configuration
+# ------------------------
+# Default command: use ripgrep to find files, excluding .git directories
 export FZF_DEFAULT_COMMAND="rg --files --hidden -g'!.git'"
 export FZF_DEFAULT_OPTS="--height 60% --layout=reverse"
 
-ff(){
-    fzf --height 80% --layout reverse --info inline --border --preview 'bat --color "always" {}'
+# Enhanced file finder with preview using bat
+ff() {
+  fzf --height 80% --layout=reverse --info=inline --border \
+      --preview 'bat --color=always {}'
 }
 
+# Find in files: search for text within files and preview matches
 fif() {
-  if [ ! "$#" -gt 0 ]; then
-    echo "Need a string to search for!";
-    return 1;
+  if [[ $# -eq 0 ]]; then
+    echo "Usage: fif <search_term>"
+    echo "Find files containing the search term and preview matches"
+    return 1
   fi
-  rg --files-with-matches --no-messages "$1" | fzf $FZF_PREVIEW_WINDOW --preview "rg --ignore-case --pretty --context 10 '$1' {}"
+  rg --files-with-matches --no-messages "$1" | \
+    fzf --preview "rg --ignore-case --pretty --context 10 '$1' {}"
 }
 
+# Custom completion for fzf with different previews per command
 _fzf_comprun() {
   local command=$1
   shift
@@ -59,49 +122,76 @@ _fzf_comprun() {
   esac
 }
 
+# Load fzf shell integration if available
+[[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh
 
-# Aliases
-alias tmux="tmux -u"
-alias gfu="git fetch upstream"
-alias ls="eza"
+# ------------------------
+# 6. Aliases and functions
+# ------------------------
+# General aliases
+alias tmux='tmux -u'                    # Force UTF-8 support in tmux
+alias gfu='git fetch upstream'          # Fetch from upstream remote
+alias zshconfig="$EDITOR ~/.zshrc"      # Quick edit of zsh config
+alias sshconf="$EDITOR ~/.ssh/config"   # Quick edit of SSH config
 
+# Enhanced ls with eza if available (modern ls replacement)
+if command -v eza &> /dev/null; then
+  alias ls='eza'
+fi
+
+# macOS-specific aliases
+if $IS_MACOS; then
+  alias chrome='open -a "Google Chrome"'
+fi
+
+# Git branch checkout with fzf integration
 gch() {
-  if [ $# -eq 0 ]
-  then
-    git branch | fzf | xargs -I {} git checkout {};
+  if [[ $# -eq 0 ]]; then
+    # No arguments: show all branches
+    git branch | fzf | xargs -I {} git checkout {}
   else
-    git branch | fzf -q "$1" | xargs -I {} git checkout {};
+    # With argument: filter branches by query
+    git branch | fzf -q "$1" | xargs -I {} git checkout {}
   fi
 }
 
-alias zshconfig="vim ~/.zshrc"
-alias chrome="Open -a 'Google Chrome'"
-alias lvim="~/.local/bin/lvim"
-alias ls_="ls"
-alias sshconf="vim ~/.ssh/config"
-alias mm="micromamba"
+# ------------------------
+# 7. Language toolchains and development tools
+# ------------------------
 
-# Update path
-export PATH="~/.local/bin:$PATH"
-export PATH="$HOME/.rbenv/bin:$PATH"
-eval "$(rbenv init -)"
-
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
-# >>> mamba initialize >>>
-# !! Contents within this block are managed by 'mamba init' !!
-export MAMBA_EXE='/opt/homebrew/bin/micromamba';
-export MAMBA_ROOT_PREFIX='/Users/sebastjancizel/micromamba';
-__mamba_setup="$("$MAMBA_EXE" shell hook --shell zsh --root-prefix "$MAMBA_ROOT_PREFIX" 2> /dev/null)"
-if [ $? -eq 0 ]; then
-    eval "$__mamba_setup"
-else
-    alias micromamba="$MAMBA_EXE"  # Fallback on help from mamba activate
+## 7.1 Ruby environment (rbenv)
+if command -v rbenv >/dev/null 2>&1; then
+  path_add "$HOME/.rbenv/bin"
+  eval "$(rbenv init - zsh)"
 fi
-unset __mamba_setup
-# <<< mamba initialize <<<
 
-source ~/.profile
-mm activate
+## 7.2 Rust toolchain
+[[ -f "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
 
-. "$HOME/.cargo/env"
+# Ensure user-local binaries are available
+path_add "$HOME/.local/bin"
+
+# ------------------------
+# 8. Local customization and profiles
+# ------------------------
+# Source additional shell profiles
+[[ -f ~/.profile ]] && source ~/.profile
+
+# Local customizations (machine-specific, never committed to git)
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
+
+# Modular configuration directory (for organized custom scripts)
+for config_file in ~/.zshrc.d/*.zsh(N); do
+  [[ -r "$config_file" ]] && source "$config_file"
+done
+
+# ============================================================================
+#  Configuration complete
+# ============================================================================
+# To customize this configuration:
+# 1. Add machine-specific settings to ~/.zshrc.local
+# 2. Add modular configurations to ~/.zshrc.d/name.zsh
+# 3. Install missing tools via your package manager:
+#    - macOS: brew install ripgrep fzf bat tree eza
+#    - Ubuntu: apt install ripgrep fzf bat tree
+#    - Arch: pacman -S ripgrep fzf bat tree eza
