@@ -14,5 +14,6 @@ map(
   "<cmd>noautocmd w<CR>",
   { noremap = true, silent = true, desc = "Write without triggering autocommands" }
 )
+map("n", "<leader>D", "<cmd>lua Snacks.dashboard()<CR>", { noremap = true, silent = true, desc = "Go to Dashboard" })
 
 map("n", "gh", "<cmd>ClangdSwitchSourceHeader<CR>", { noremap = true, silent = true, desc = "Goto header" })

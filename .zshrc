@@ -123,7 +123,6 @@ _fzf_comprun() {
 }
 
 # Load fzf shell integration if available
-[[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh
 
 # ------------------------
 # 6. Aliases and functions
@@ -195,3 +194,5 @@ done
 #    - macOS: brew install ripgrep fzf bat tree eza
 #    - Ubuntu: apt install ripgrep fzf bat tree
 #    - Arch: pacman -S ripgrep fzf bat tree eza
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
