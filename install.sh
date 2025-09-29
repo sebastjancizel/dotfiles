@@ -79,8 +79,18 @@ ln -sf "$(pwd)/nvim" "$HOME_DIR/.config/nvim"
 
 # Install fzf
 log "[5/7] Installing fzf..."
-git clone --depth 1 --quiet https://github.com/junegunn/fzf.git $HOME_DIR/.fzf
-$HOME_DIR/.fzf/install --all >/dev/null
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+	# Ubuntu/Debian: Use git for latest version (apt has outdated version)
+	log "  => Installing fzf from git for latest version"
+	git clone --depth 1 --quiet https://github.com/junegunn/fzf.git $HOME_DIR/.fzf
+	$HOME_DIR/.fzf/install --all >/dev/null
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+	# macOS: Homebrew has the latest version
+	log "  => Installing fzf via Homebrew"
+	brew install fzf
+	# Run fzf install to set up shell integration
+	$(brew --prefix)/opt/fzf/install --all >/dev/null
+fi
 
 # Install zsh plugins
 log "[6/7] Installing zsh plugins..."
