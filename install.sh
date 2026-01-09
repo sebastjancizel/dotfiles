@@ -16,8 +16,8 @@ ARCH="$(uname -m)"
 
 # Normalize architecture names
 case "$ARCH" in
-  x86_64) ARCH_ALT="amd64"; ARCH_RUST="x86_64" ;;
-  aarch64|arm64) ARCH_ALT="arm64"; ARCH_RUST="aarch64" ;;
+  x86_64) ARCH_ALT="amd64"; ARCH_RUST="x86_64"; ARCH_NVIM="x86_64" ;;
+  aarch64|arm64) ARCH_ALT="arm64"; ARCH_RUST="aarch64"; ARCH_NVIM="arm64" ;;
   *) err "Unsupported architecture: $ARCH"; exit 1 ;;
 esac
 
@@ -53,17 +53,17 @@ fi
 log "[2/6] Installing Neovim..."
 NVIM_VERSION=$(gh_latest "neovim/neovim")
 if [[ "$OS" == "Linux" ]]; then
-  NVIM_URL="https://github.com/neovim/neovim/releases/download/${NVIM_VERSION}/nvim-linux-${ARCH}.tar.gz"
+  NVIM_URL="https://github.com/neovim/neovim/releases/download/${NVIM_VERSION}/nvim-linux-${ARCH_NVIM}.tar.gz"
   gh_download "$NVIM_URL" /tmp/nvim.tar.gz
   tar -xzf /tmp/nvim.tar.gz -C /tmp
-  cp -r /tmp/nvim-linux-${ARCH}/* "$HOME_DIR/.local/"
-  rm -rf /tmp/nvim.tar.gz /tmp/nvim-linux-${ARCH}
+  cp -r /tmp/nvim-linux-${ARCH_NVIM}/* "$HOME_DIR/.local/"
+  rm -rf /tmp/nvim.tar.gz /tmp/nvim-linux-${ARCH_NVIM}
 elif [[ "$OS" == "Darwin" ]]; then
-  NVIM_URL="https://github.com/neovim/neovim/releases/download/${NVIM_VERSION}/nvim-macos-${ARCH_ALT}.tar.gz"
+  NVIM_URL="https://github.com/neovim/neovim/releases/download/${NVIM_VERSION}/nvim-macos-${ARCH_NVIM}.tar.gz"
   gh_download "$NVIM_URL" /tmp/nvim.tar.gz
   tar -xzf /tmp/nvim.tar.gz -C /tmp
-  cp -r /tmp/nvim-macos-${ARCH_ALT}/* "$HOME_DIR/.local/"
-  rm -rf /tmp/nvim.tar.gz /tmp/nvim-macos-${ARCH_ALT}
+  cp -r /tmp/nvim-macos-${ARCH_NVIM}/* "$HOME_DIR/.local/"
+  rm -rf /tmp/nvim.tar.gz /tmp/nvim-macos-${ARCH_NVIM}
 fi
 log "  Neovim $NVIM_VERSION installed"
 
@@ -103,7 +103,12 @@ log "[5/6] Installing CLI tools (ripgrep, bat, eza)..."
 RG_VERSION=$(gh_latest "BurntSushi/ripgrep")
 RG_VERSION_NUM="${RG_VERSION#v}"
 if [[ "$OS" == "Linux" ]]; then
-  RG_URL="https://github.com/BurntSushi/ripgrep/releases/download/${RG_VERSION}/ripgrep-${RG_VERSION_NUM}-${ARCH_RUST}-unknown-linux-musl.tar.gz"
+  # aarch64 only has gnu variant, x86_64 has musl
+  if [[ "$ARCH_RUST" == "aarch64" ]]; then
+    RG_URL="https://github.com/BurntSushi/ripgrep/releases/download/${RG_VERSION}/ripgrep-${RG_VERSION_NUM}-${ARCH_RUST}-unknown-linux-gnu.tar.gz"
+  else
+    RG_URL="https://github.com/BurntSushi/ripgrep/releases/download/${RG_VERSION}/ripgrep-${RG_VERSION_NUM}-${ARCH_RUST}-unknown-linux-musl.tar.gz"
+  fi
 elif [[ "$OS" == "Darwin" ]]; then
   RG_URL="https://github.com/BurntSushi/ripgrep/releases/download/${RG_VERSION}/ripgrep-${RG_VERSION_NUM}-${ARCH_RUST}-apple-darwin.tar.gz"
 fi
@@ -115,11 +120,10 @@ log "  ripgrep $RG_VERSION installed"
 
 # Bat
 BAT_VERSION=$(gh_latest "sharkdp/bat")
-BAT_VERSION_NUM="${BAT_VERSION#v}"
 if [[ "$OS" == "Linux" ]]; then
-  BAT_URL="https://github.com/sharkdp/bat/releases/download/${BAT_VERSION}/bat-${BAT_VERSION_NUM}-${ARCH_RUST}-unknown-linux-musl.tar.gz"
+  BAT_URL="https://github.com/sharkdp/bat/releases/download/${BAT_VERSION}/bat-${BAT_VERSION}-${ARCH_RUST}-unknown-linux-musl.tar.gz"
 elif [[ "$OS" == "Darwin" ]]; then
-  BAT_URL="https://github.com/sharkdp/bat/releases/download/${BAT_VERSION}/bat-${BAT_VERSION_NUM}-${ARCH_RUST}-apple-darwin.tar.gz"
+  BAT_URL="https://github.com/sharkdp/bat/releases/download/${BAT_VERSION}/bat-${BAT_VERSION}-${ARCH_RUST}-apple-darwin.tar.gz"
 fi
 gh_download "$BAT_URL" /tmp/bat.tar.gz
 tar -xzf /tmp/bat.tar.gz -C /tmp
@@ -131,7 +135,8 @@ log "  bat $BAT_VERSION installed"
 EZA_VERSION=$(gh_latest "eza-community/eza")
 EZA_VERSION_NUM="${EZA_VERSION#v}"
 if [[ "$OS" == "Linux" ]]; then
-  EZA_URL="https://github.com/eza-community/eza/releases/download/${EZA_VERSION}/eza_${ARCH_RUST}-unknown-linux-musl.tar.gz"
+  # eza only has gnu variant for linux
+  EZA_URL="https://github.com/eza-community/eza/releases/download/${EZA_VERSION}/eza_${ARCH_RUST}-unknown-linux-gnu.tar.gz"
 elif [[ "$OS" == "Darwin" ]]; then
   EZA_URL="https://github.com/eza-community/eza/releases/download/${EZA_VERSION}/eza_${ARCH_RUST}-apple-darwin.tar.gz"
 fi
@@ -140,13 +145,30 @@ tar -xzf /tmp/eza.tar.gz -C "$LOCAL_BIN"
 rm /tmp/eza.tar.gz
 log "  eza $EZA_VERSION installed"
 
+# Zoxide (fast cd alternative)
+ZOXIDE_VERSION=$(gh_latest "ajeetdsouza/zoxide")
+if [[ "$OS" == "Linux" ]]; then
+  ZOXIDE_URL="https://github.com/ajeetdsouza/zoxide/releases/download/${ZOXIDE_VERSION}/zoxide-${ZOXIDE_VERSION#v}-${ARCH_RUST}-unknown-linux-musl.tar.gz"
+elif [[ "$OS" == "Darwin" ]]; then
+  ZOXIDE_URL="https://github.com/ajeetdsouza/zoxide/releases/download/${ZOXIDE_VERSION}/zoxide-${ZOXIDE_VERSION#v}-${ARCH_RUST}-apple-darwin.tar.gz"
+fi
+gh_download "$ZOXIDE_URL" /tmp/zoxide.tar.gz
+tar -xzf /tmp/zoxide.tar.gz -C /tmp
+cp /tmp/zoxide "$LOCAL_BIN/"
+rm -rf /tmp/zoxide.tar.gz /tmp/zoxide
+log "  zoxide $ZOXIDE_VERSION installed"
+
 # ============================================================================
 # 6. Node.js via fnm (Fast Node Manager)
 # ============================================================================
 log "[6/8] Installing fnm and Node.js..."
 FNM_VERSION=$(gh_latest "Schniz/fnm")
 if [[ "$OS" == "Linux" ]]; then
-  FNM_URL="https://github.com/Schniz/fnm/releases/download/${FNM_VERSION}/fnm-linux.zip"
+  if [[ "$ARCH" == "aarch64" || "$ARCH" == "arm64" ]]; then
+    FNM_URL="https://github.com/Schniz/fnm/releases/download/${FNM_VERSION}/fnm-arm64.zip"
+  else
+    FNM_URL="https://github.com/Schniz/fnm/releases/download/${FNM_VERSION}/fnm-linux.zip"
+  fi
 elif [[ "$OS" == "Darwin" ]]; then
   FNM_URL="https://github.com/Schniz/fnm/releases/download/${FNM_VERSION}/fnm-macos.zip"
 fi
@@ -161,22 +183,30 @@ eval "$("$LOCAL_BIN/fnm" env)"
 log "  fnm + Node.js LTS installed"
 
 # ============================================================================
-# 7. AI Coding Agents
+# 7. AI Coding Agents (optional)
 # ============================================================================
 log "[7/8] Installing AI coding agents..."
 
-# Claude Code
-log "  Installing Claude Code..."
-npm install -g @anthropic-ai/claude-code
+# Claude Code (npm install -g @anthropic-ai/claude-code)
+if npm install -g @anthropic-ai/claude-code 2>/dev/null; then
+  log "  Claude Code installed"
+else
+  log "  Claude Code: npm install -g @anthropic-ai/claude-code"
+fi
 
-# Amp
-log "  Installing Amp..."
-npm install -g @anthropic-ai/amp
+# Amp (https://ampcode.com - npm install -g @sourcegraph/amp)
+if npm install -g @sourcegraph/amp 2>/dev/null; then
+  log "  Amp installed"
+else
+  log "  Amp: npm install -g @sourcegraph/amp"
+fi
 
-# Gemini CLI (optional)
-npm install -g @google/generative-ai 2>/dev/null || log "  Gemini CLI not available"
-
-log "  AI agents installed"
+# Gemini CLI (npm install -g @google/gemini-cli)
+if npm install -g @google/gemini-cli 2>/dev/null; then
+  log "  Gemini CLI installed"
+else
+  log "  Gemini CLI: npm install -g @google/gemini-cli"
+fi
 
 # ============================================================================
 # 8. Symlinks and configuration
@@ -184,11 +214,10 @@ log "  AI agents installed"
 log "[8/8] Creating symlinks..."
 DOTFILES_DIR="$(cd "$(dirname "$0")" && pwd)"
 
+mkdir -p "$HOME_DIR/.config"
 ln -sf "$DOTFILES_DIR/.zshrc" "$HOME_DIR/.zshrc"
 ln -sf "$DOTFILES_DIR/.tmux.conf" "$HOME_DIR/.tmux.conf"
 ln -sf "$DOTFILES_DIR/starship.toml" "$HOME_DIR/.config/starship.toml"
-
-mkdir -p "$HOME_DIR/.config"
 ln -sf "$DOTFILES_DIR/nvim" "$HOME_DIR/.config/nvim"
 
 log "Installation complete!"

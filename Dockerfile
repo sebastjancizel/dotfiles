@@ -1,6 +1,6 @@
 FROM ubuntu:latest
 
-RUN apt update && apt install -y curl git zsh sudo build-essential
+RUN apt update && apt install -y curl git zsh sudo build-essential unzip
 
 RUN useradd -m -s /bin/zsh dev && \
     echo "dev ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers

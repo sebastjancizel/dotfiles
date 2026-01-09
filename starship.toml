@@ -1,123 +1,29 @@
-# Starship prompt - stylish and fast
+"$schema" = 'https://starship.rs/config-schema.json'
 
-format = """
-$os\
-$directory\
-$git_branch\
-$git_status\
-$python\
-$rust\
-$nodejs\
-$golang\
-$docker_context\
-$cmd_duration\
-$line_break\
-$character"""
+[battery]
+full_symbol = "• "
+charging_symbol = "⇡ "
+discharging_symbol = "⇣ "
+unknown_symbol = "❓ "
+empty_symbol = "❗ "
 
-palette = "catppuccin_mocha"
+[erlang]
+symbol = "ⓔ "
 
-[palettes.catppuccin_mocha]
-rosewater = "#f5e0dc"
-flamingo = "#f2cdcd"
-pink = "#f5c2e7"
-mauve = "#cba6f7"
-red = "#f38ba8"
-maroon = "#eba0ac"
-peach = "#fab387"
-yellow = "#f9e2af"
-green = "#a6e3a1"
-teal = "#94e2d5"
-sky = "#89dceb"
-sapphire = "#74c7ec"
-blue = "#89b4fa"
-lavender = "#b4befe"
-text = "#cdd6f4"
-subtext1 = "#bac2de"
-subtext0 = "#a6adc8"
-overlay2 = "#9399b2"
-overlay1 = "#7f849c"
-overlay0 = "#6c7086"
-surface2 = "#585b70"
-surface1 = "#45475a"
-surface0 = "#313244"
-base = "#1e1e2e"
-mantle = "#181825"
-crust = "#11111b"
-
-[os]
-disabled = false
-style = "fg:text"
-
-[os.symbols]
-Macos = "󰀵 "
-Linux = "󰌽 "
-Ubuntu = "󰕈 "
-Debian = "󰣚 "
-Arch = "󰣇 "
-
-[directory]
-style = "fg:sapphire bold"
-format = "[ $path ]($style)"
-truncation_length = 3
-truncate_to_repo = true
-
-[directory.substitutions]
-"Documents" = "󰈙 "
-"Downloads" = " "
-"Music" = "󰝚 "
-"Pictures" = " "
-"Developer" = "󰲋 "
-"~" = " "
-
-[git_branch]
-symbol = ""
-style = "fg:mauve"
-format = "[  $symbol $branch ]($style)"
-
-[git_status]
-style = "fg:peach"
-format = '([$all_status$ahead_behind]($style) )'
-ahead = "⇡${count}"
-behind = "⇣${count}"
-diverged = "⇕⇡${ahead_count}⇣${behind_count}"
-staged = "+${count}"
-modified = "!${count}"
-untracked = "?${count}"
-
-[python]
-symbol = ""
-style = "fg:yellow"
-format = '[ $symbol $virtualenv ]($style)'
-
-[rust]
-symbol = ""
-style = "fg:maroon"
-format = "[ $symbol ($version) ]($style)"
+[fortran]
+symbol = "F "
 
 [nodejs]
-symbol = ""
-style = "fg:green"
-format = "[ $symbol ($version) ]($style)"
+disabled = true
 
-[golang]
-symbol = ""
-style = "fg:sky"
-format = "[ $symbol ($version) ]($style)"
+[aws]
+disabled = true
 
-[docker_context]
-symbol = ""
-style = "fg:blue"
-format = "[ $symbol $context ]($style)"
+[gcloud]
+disabled = true
 
-[cmd_duration]
-min_time = 1_000
-style = "fg:overlay1"
-format = "[ 󱎫 $duration ]($style)"
+[pulumi]
+symbol = "🧊 "
 
-[line_break]
-disabled = false
-
-[character]
-success_symbol = "[❯](bold green)"
-error_symbol = "[❯](bold red)"
-vimcmd_symbol = "[❮](bold mauve)"
+[typst]
+symbol = "t "
