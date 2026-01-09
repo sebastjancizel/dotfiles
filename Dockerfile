@@ -1,21 +1,15 @@
-# Use the latest Ubuntu image as the base
 FROM ubuntu:latest
 
-# Install required packages and apt-utils
-RUN apt update && \
-    apt install -y apt-utils && \
-    apt install -y curl git zsh sudo
+RUN apt update && apt install -y curl git zsh sudo build-essential
 
-# Create a new user "test" with sudo privileges
-RUN useradd -m -s /bin/zsh test && \
-    echo "test:test" | chpasswd && \
-    usermod -aG sudo test
+RUN useradd -m -s /bin/zsh dev && \
+    echo "dev ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
-# Set the user and home directory
-USER test
-WORKDIR /home/test
+USER dev
+WORKDIR /home/dev
 
-RUN git clone https://github.com/sebastjancizel/dotfiles.git
+COPY --chown=dev:dev . /home/dev/dotfiles
 
-# Set the entrypoint to start an interactive Zsh session
+RUN cd /home/dev/dotfiles && ./install.sh
+
 ENTRYPOINT ["/bin/zsh"]

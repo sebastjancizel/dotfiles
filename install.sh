@@ -1,109 +1,199 @@
 #!/bin/bash
-
 set -e
-# Function to log messages in cyan
-log() {
-	echo -e "\033[0;36m$1\033[0m"
+
+# Minimal dotfiles installer - uses GitHub releases where possible
+
+log() { echo -e "\033[0;36m$1\033[0m"; }
+err() { echo -e "\033[0;31m$1\033[0m" >&2; }
+
+HOME_DIR="${HOME_DIR:-$HOME}"
+LOCAL_BIN="$HOME_DIR/.local/bin"
+mkdir -p "$LOCAL_BIN"
+export PATH="$LOCAL_BIN:$PATH"
+
+OS="$(uname -s)"
+ARCH="$(uname -m)"
+
+# Normalize architecture names
+case "$ARCH" in
+  x86_64) ARCH_ALT="amd64"; ARCH_RUST="x86_64" ;;
+  aarch64|arm64) ARCH_ALT="arm64"; ARCH_RUST="aarch64" ;;
+  *) err "Unsupported architecture: $ARCH"; exit 1 ;;
+esac
+
+# Helper to get latest GitHub release tag
+gh_latest() {
+  curl -sL "https://api.github.com/repos/$1/releases/latest" | grep '"tag_name"' | sed 's/.*"tag_name": *"\([^"]*\)".*/\1/'
 }
 
-log "Starting installation..."
+# Helper to download and extract from GitHub
+gh_download() {
+  local url="$1" dest="$2"
+  log "  Downloading: $url"
+  curl -sL "$url" -o "$dest"
+}
 
-export PATH="$HOME/.local/bin:$PATH"
-# Check if HOME_DIR is set else set it to $HOME
-# This allows the user to pass a custom home directory as an environment variable
-if [ -z "$HOME_DIR" ]; then
-	HOME_DIR=$HOME
+# ============================================================================
+# 1. System packages (minimal - only what we can't get from GitHub)
+# ============================================================================
+log "[1/6] Installing system dependencies..."
+if [[ "$OS" == "Linux" ]]; then
+  if command -v apt &>/dev/null; then
+    sudo apt update -qq
+    sudo apt install -yqq git curl zsh build-essential
+  fi
+elif [[ "$OS" == "Darwin" ]]; then
+  # Xcode CLI tools provide git, curl, etc.
+  xcode-select --install 2>/dev/null || true
 fi
 
-# Install basic utilities
-log "[1/7] Installing basic utilities..."
-if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-	sudo apt update >/dev/null
-	export DEBIAN_FRONTEND=noninteractive
-	sudo apt install -yq dialog git curl vim tmux sudo python3 python3-pip file
-	sudo apt install -yq fd-find ripgrep silversearcher-ag bat zsh tree
-	# Create a symlink to make bat accessible with the bat command
-	sudo ln -s /usr/bin/batcat /usr/bin/bat
-elif [[ "$OSTYPE" == "darwin"* ]]; then
-	brew install git curl vim tmux tree fd ripgrep the_silver_searcher bat zsh git-delta pipx eza
+# ============================================================================
+# 2. Neovim (from GitHub releases)
+# ============================================================================
+log "[2/6] Installing Neovim..."
+NVIM_VERSION=$(gh_latest "neovim/neovim")
+if [[ "$OS" == "Linux" ]]; then
+  NVIM_URL="https://github.com/neovim/neovim/releases/download/${NVIM_VERSION}/nvim-linux-${ARCH}.tar.gz"
+  gh_download "$NVIM_URL" /tmp/nvim.tar.gz
+  tar -xzf /tmp/nvim.tar.gz -C /tmp
+  cp -r /tmp/nvim-linux-${ARCH}/* "$HOME_DIR/.local/"
+  rm -rf /tmp/nvim.tar.gz /tmp/nvim-linux-${ARCH}
+elif [[ "$OS" == "Darwin" ]]; then
+  NVIM_URL="https://github.com/neovim/neovim/releases/download/${NVIM_VERSION}/nvim-macos-${ARCH_ALT}.tar.gz"
+  gh_download "$NVIM_URL" /tmp/nvim.tar.gz
+  tar -xzf /tmp/nvim.tar.gz -C /tmp
+  cp -r /tmp/nvim-macos-${ARCH_ALT}/* "$HOME_DIR/.local/"
+  rm -rf /tmp/nvim.tar.gz /tmp/nvim-macos-${ARCH_ALT}
 fi
+log "  Neovim $NVIM_VERSION installed"
 
-# Install neovim
-log "[2/7] Installing neovim (latest stable release)..."
-if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-	# Get the latest stable release URL from GitHub API
-	log "  => Fetching latest neovim release info..."
-	NVIM_VERSION=$(curl -s https://api.github.com/repos/neovim/neovim/releases/latest | grep '"tag_name"' | sed 's/.*"tag_name": *"\([^"]*\)".*/\1/')
-	
-	if [ -z "$NVIM_VERSION" ]; then
-		log "  => Failed to get latest version, using fallback v0.10.2"
-		NVIM_VERSION="v0.10.2"
-	fi
-	
-	log "  => Installing neovim $NVIM_VERSION"
-	NVIM_URL="https://github.com/neovim/neovim/releases/download/${NVIM_VERSION}/nvim-linux-x86_64.tar.gz"
-	
-	# Download and install neovim (follow redirects)
-	if curl -sL -o /tmp/nvim-linux-x86_64.tar.gz "$NVIM_URL"; then
-		log "  => Download successful, extracting..."
-		sudo tar -C /opt -xzf /tmp/nvim-linux-x86_64.tar.gz
-		sudo ln -sf /opt/nvim-linux-x86_64/bin/nvim /usr/local/bin/nvim
-		rm /tmp/nvim-linux-x86_64.tar.gz
-	else
-		log "  => Download failed, please check your internet connection"
-		exit 1
-	fi
-	
-	# Verify installation
-	nvim --version >/dev/null && log "  => Neovim installed successfully"
-elif [[ "$OSTYPE" == "darwin"* ]]; then
-	# macOS: use homebrew for latest stable
-	brew install neovim
+# ============================================================================
+# 3. Starship prompt (from GitHub releases)
+# ============================================================================
+log "[3/6] Installing Starship..."
+curl -sS https://starship.rs/install.sh | sh -s -- -y -b "$LOCAL_BIN"
+log "  Starship installed"
+
+# ============================================================================
+# 4. FZF (from GitHub releases)
+# ============================================================================
+log "[4/6] Installing fzf..."
+FZF_VERSION=$(gh_latest "junegunn/fzf")
+FZF_VERSION_NUM="${FZF_VERSION#v}"
+if [[ "$OS" == "Linux" ]]; then
+  FZF_URL="https://github.com/junegunn/fzf/releases/download/${FZF_VERSION}/fzf-${FZF_VERSION_NUM}-linux_${ARCH_ALT}.tar.gz"
+elif [[ "$OS" == "Darwin" ]]; then
+  FZF_URL="https://github.com/junegunn/fzf/releases/download/${FZF_VERSION}/fzf-${FZF_VERSION_NUM}-darwin_${ARCH_ALT}.tar.gz"
 fi
+gh_download "$FZF_URL" /tmp/fzf.tar.gz
+tar -xzf /tmp/fzf.tar.gz -C "$LOCAL_BIN"
+rm /tmp/fzf.tar.gz
 
-# Install Oh My Zsh
-log "[3/7] Installing Oh My Zsh..."
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended >/dev/null
+# Install fzf shell integration
+git clone --depth 1 https://github.com/junegunn/fzf.git "$HOME_DIR/.fzf" 2>/dev/null || true
+"$HOME_DIR/.fzf/install" --key-bindings --completion --no-update-rc --no-bash --no-fish
+log "  fzf $FZF_VERSION installed"
 
-# Set ZSH environment variable
-ZSH="$HOME_DIR/.oh-my-zsh"
+# ============================================================================
+# 5. CLI tools from GitHub releases
+# ============================================================================
+log "[5/6] Installing CLI tools (ripgrep, bat, eza)..."
 
-# Create symlinks for .zshrc and .tmux.conf in the home directory (assuming they are in the same directory as this script)
-log "[4/7] Creating symlinks..."
-ln -sf "$(pwd)/.zshrc" "$HOME_DIR/.zshrc"
-ln -sf "$(pwd)/.tmux.conf" "$HOME_DIR/.tmux.conf"
-ln -sf "$(pwd)/.p10k.zsh" "$HOME_DIR/.p10k.zsh"
+# Ripgrep
+RG_VERSION=$(gh_latest "BurntSushi/ripgrep")
+RG_VERSION_NUM="${RG_VERSION#v}"
+if [[ "$OS" == "Linux" ]]; then
+  RG_URL="https://github.com/BurntSushi/ripgrep/releases/download/${RG_VERSION}/ripgrep-${RG_VERSION_NUM}-${ARCH_RUST}-unknown-linux-musl.tar.gz"
+elif [[ "$OS" == "Darwin" ]]; then
+  RG_URL="https://github.com/BurntSushi/ripgrep/releases/download/${RG_VERSION}/ripgrep-${RG_VERSION_NUM}-${ARCH_RUST}-apple-darwin.tar.gz"
+fi
+gh_download "$RG_URL" /tmp/rg.tar.gz
+tar -xzf /tmp/rg.tar.gz -C /tmp
+cp /tmp/ripgrep-*/rg "$LOCAL_BIN/"
+rm -rf /tmp/rg.tar.gz /tmp/ripgrep-*
+log "  ripgrep $RG_VERSION installed"
+
+# Bat
+BAT_VERSION=$(gh_latest "sharkdp/bat")
+BAT_VERSION_NUM="${BAT_VERSION#v}"
+if [[ "$OS" == "Linux" ]]; then
+  BAT_URL="https://github.com/sharkdp/bat/releases/download/${BAT_VERSION}/bat-${BAT_VERSION_NUM}-${ARCH_RUST}-unknown-linux-musl.tar.gz"
+elif [[ "$OS" == "Darwin" ]]; then
+  BAT_URL="https://github.com/sharkdp/bat/releases/download/${BAT_VERSION}/bat-${BAT_VERSION_NUM}-${ARCH_RUST}-apple-darwin.tar.gz"
+fi
+gh_download "$BAT_URL" /tmp/bat.tar.gz
+tar -xzf /tmp/bat.tar.gz -C /tmp
+cp /tmp/bat-*/bat "$LOCAL_BIN/"
+rm -rf /tmp/bat.tar.gz /tmp/bat-*
+log "  bat $BAT_VERSION installed"
+
+# Eza
+EZA_VERSION=$(gh_latest "eza-community/eza")
+EZA_VERSION_NUM="${EZA_VERSION#v}"
+if [[ "$OS" == "Linux" ]]; then
+  EZA_URL="https://github.com/eza-community/eza/releases/download/${EZA_VERSION}/eza_${ARCH_RUST}-unknown-linux-musl.tar.gz"
+elif [[ "$OS" == "Darwin" ]]; then
+  EZA_URL="https://github.com/eza-community/eza/releases/download/${EZA_VERSION}/eza_${ARCH_RUST}-apple-darwin.tar.gz"
+fi
+gh_download "$EZA_URL" /tmp/eza.tar.gz
+tar -xzf /tmp/eza.tar.gz -C "$LOCAL_BIN"
+rm /tmp/eza.tar.gz
+log "  eza $EZA_VERSION installed"
+
+# ============================================================================
+# 6. Node.js via fnm (Fast Node Manager)
+# ============================================================================
+log "[6/8] Installing fnm and Node.js..."
+FNM_VERSION=$(gh_latest "Schniz/fnm")
+if [[ "$OS" == "Linux" ]]; then
+  FNM_URL="https://github.com/Schniz/fnm/releases/download/${FNM_VERSION}/fnm-linux.zip"
+elif [[ "$OS" == "Darwin" ]]; then
+  FNM_URL="https://github.com/Schniz/fnm/releases/download/${FNM_VERSION}/fnm-macos.zip"
+fi
+gh_download "$FNM_URL" /tmp/fnm.zip
+unzip -o /tmp/fnm.zip -d "$LOCAL_BIN"
+chmod +x "$LOCAL_BIN/fnm"
+rm /tmp/fnm.zip
+
+# Install latest LTS Node
+eval "$("$LOCAL_BIN/fnm" env)"
+"$LOCAL_BIN/fnm" install --lts
+log "  fnm + Node.js LTS installed"
+
+# ============================================================================
+# 7. AI Coding Agents
+# ============================================================================
+log "[7/8] Installing AI coding agents..."
+
+# Claude Code
+log "  Installing Claude Code..."
+npm install -g @anthropic-ai/claude-code
+
+# Amp
+log "  Installing Amp..."
+npm install -g @anthropic-ai/amp
+
+# Gemini CLI (optional)
+npm install -g @google/generative-ai 2>/dev/null || log "  Gemini CLI not available"
+
+log "  AI agents installed"
+
+# ============================================================================
+# 8. Symlinks and configuration
+# ============================================================================
+log "[8/8] Creating symlinks..."
+DOTFILES_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+ln -sf "$DOTFILES_DIR/.zshrc" "$HOME_DIR/.zshrc"
+ln -sf "$DOTFILES_DIR/.tmux.conf" "$HOME_DIR/.tmux.conf"
+ln -sf "$DOTFILES_DIR/starship.toml" "$HOME_DIR/.config/starship.toml"
 
 mkdir -p "$HOME_DIR/.config"
-ln -sf "$(pwd)/nvim" "$HOME_DIR/.config/nvim"
+ln -sf "$DOTFILES_DIR/nvim" "$HOME_DIR/.config/nvim"
 
-# Install fzf
-log "[5/7] Installing fzf..."
-if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-	# Ubuntu/Debian: Use git for latest version (apt has outdated version)
-	log "  => Installing fzf from git for latest version"
-	git clone --depth 1 --quiet https://github.com/junegunn/fzf.git $HOME_DIR/.fzf
-	$HOME_DIR/.fzf/install --all >/dev/null
-elif [[ "$OSTYPE" == "darwin"* ]]; then
-	# macOS: Homebrew has the latest version
-	log "  => Installing fzf via Homebrew"
-	brew install fzf
-	# Run fzf install to set up shell integration
-	$(brew --prefix)/opt/fzf/install --all >/dev/null
-fi
-
-# Install zsh plugins
-log "[6/7] Installing zsh plugins..."
-log "=>Cloning powerlevel10k"
-git clone --depth=1 --quiet https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$ZSH/custom}/themes/powerlevel10k
-
-log "=>Cloning zsh-autosuggestions"
-git clone --quiet https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-$ZSH/custom}/plugins/zsh-autosuggestions
-log "=>Cloning zsh-history-substring-search"
-git clone --quiet https://github.com/zsh-users/zsh-history-substring-search ${ZSH_CUSTOM:-$ZSH/custom}/plugins/zsh-history-substring-search
-log "=>Cloning zsh-syntax-highlighting"
-git clone --quiet https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-$ZSH/custom}/plugins/zsh-syntax-highlighting
-log "=>Cloning fzf-tab"
-git clone --quiet https://github.com/Aloxaf/fzf-tab ${ZSH_CUSTOM:-$ZSH/custom}/plugins/fzf-tab
-
-log "[7/7] Installation complete"
+log "Installation complete!"
+log ""
+log "Next steps:"
+log "  1. Restart your shell or run: exec zsh"
+log "  2. Open nvim to let LazyVim install plugins"
+log "  3. Run 'tmux' and press prefix + I to install tmux plugins"
