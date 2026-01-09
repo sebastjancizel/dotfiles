@@ -1,65 +1,48 @@
-# My Dotfiles 🚀✨
+# Dotfiles
 
-This repository contains my personal dotfiles for configuring the shell environment, including the `.zshrc`, `.tmux.conf`, the `install.sh` script for easy setup, and a `Dockerfile` for testing the installation process.
+Minimal, fast dotfiles for a functional dev environment. Installs tools directly from GitHub releases.
 
-## Prerequisites 🛠
+## What's Included
 
-- A Unix-based system (Linux or macOS)
-- [Homebrew](https://brew.sh/) (for macOS users)
-- Git
-- Curl
-- Docker (for testing the installation using the Dockerfile)
+- **Shell**: zsh with [zinit](https://github.com/zdharma-continuum/zinit) (plugin manager) + [Starship](https://starship.rs) prompt
+- **Editor**: [Neovim](https://neovim.io) with [LazyVim](https://lazyvim.github.io)
+- **Terminal multiplexer**: tmux with [Catppuccin](https://github.com/catppuccin/tmux) theme
+- **CLI tools**: fzf, ripgrep, bat, eza (all from GitHub releases)
 
-## Installation Instructions 📝
-
-1. Clone the repository:
+## Installation
 
 ```bash
 git clone https://github.com/sebastjancizel/dotfiles.git ~/dotfiles
-```
-
-2. Change the current directory to the `dotfiles` folder:
-
-```bash
 cd ~/dotfiles
-```
-
-\**Important**: Make sure you are in the `dotfiles` folder before running the `install.sh` script, as it expects to be run from the repository's root directory.
-
-3. Make the `install.sh` script executable:
-
-```bash
 chmod +x install.sh
-```
-
-4. Run the `install.sh` script:
-
-```bash
 ./install.sh
 ```
 
-The `install.sh` script will install the necessary packages, create symlinks for the `.zshrc` and `.tmux.conf` files in your home directory, and set up your shell environment according to the script's contents. 🎉
+The installer downloads tools directly from GitHub releases - no Homebrew or apt required for the core tools.
 
-**Note**: The script will overwrite your current `.zshrc` and `.tmux.conf` files with symlinks to the ones in the `dotfiles` folder. Make sure to back up your existing configuration files if you don't want to lose them.
+## Structure
 
-## Testing the Installation with Docker 🐳
-
-A `Dockerfile` is included in this repository for testing the installation process in an isolated environment. To test the installation using Docker, follow these steps:
-
-1. Make sure you have Docker installed on your system.
-
-2. Build the Docker image:
-
-```bash
-docker build -t my-dotfiles .
+```
+dotfiles/
+├── .zshrc           # Shell config (zinit + starship)
+├── .tmux.conf       # Tmux config (catppuccin theme)
+├── starship.toml    # Starship prompt config
+├── nvim/            # Neovim config (LazyVim-based)
+│   └── lua/
+│       ├── config/  # Core settings + keymaps
+│       └── plugins/ # Custom plugins
+└── install.sh       # Installer script
 ```
 
-3. Run the Docker container:
+## Customization
+
+- **Machine-specific settings**: Create `~/.zshrc.local` (not tracked in git)
+- **Neovim plugins**: Add files to `nvim/lua/plugins/`
+- **Starship prompt**: Edit `starship.toml`
+
+## Testing with Docker
 
 ```bash
-docker run -it --rm my-dotfiles
+docker build -t dotfiles .
+docker run -it --rm dotfiles
 ```
-
-This will launch an interactive session within the Docker container, where you can test the `install.sh` script and the configuration files.
-
-If you encounter any issues or have suggestions for improvements, feel free to open an issue or submit a pull request.
