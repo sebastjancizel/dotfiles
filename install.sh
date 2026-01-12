@@ -141,19 +141,22 @@ cp /tmp/bat-*/bat "$LOCAL_BIN/"
 rm -rf /tmp/bat.tar.gz /tmp/bat-*
 log "  bat $BAT_VERSION installed"
 
-# Eza
-EZA_VERSION=$(gh_latest "eza-community/eza")
-EZA_VERSION_NUM="${EZA_VERSION#v}"
+# Eza (Linux only - no macOS binaries available, use brew on macOS)
 if [[ "$OS" == "Linux" ]]; then
-  # eza only has gnu variant for linux
+  EZA_VERSION=$(gh_latest "eza-community/eza")
   EZA_URL="https://github.com/eza-community/eza/releases/download/${EZA_VERSION}/eza_${ARCH_RUST}-unknown-linux-gnu.tar.gz"
+  gh_download "$EZA_URL" /tmp/eza.tar.gz
+  tar -xzf /tmp/eza.tar.gz -C "$LOCAL_BIN"
+  rm /tmp/eza.tar.gz
+  log "  eza $EZA_VERSION installed"
 elif [[ "$OS" == "Darwin" ]]; then
-  EZA_URL="https://github.com/eza-community/eza/releases/download/${EZA_VERSION}/eza_${ARCH_RUST}-apple-darwin.tar.gz"
+  if command -v brew &>/dev/null; then
+    brew install eza 2>/dev/null || true
+    log "  eza installed via brew"
+  else
+    log "  eza: install via 'brew install eza' (no prebuilt macOS binaries)"
+  fi
 fi
-gh_download "$EZA_URL" /tmp/eza.tar.gz
-tar -xzf /tmp/eza.tar.gz -C "$LOCAL_BIN"
-rm /tmp/eza.tar.gz
-log "  eza $EZA_VERSION installed"
 
 # Zoxide (fast cd alternative)
 ZOXIDE_VERSION=$(gh_latest "ajeetdsouza/zoxide")
