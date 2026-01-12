@@ -24,3 +24,5 @@ jobs:
 
     - name: Run install.sh
       run: ./install.sh
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

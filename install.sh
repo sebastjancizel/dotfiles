@@ -23,7 +23,17 @@ esac
 
 # Helper to get latest GitHub release tag
 gh_latest() {
-  curl -sL "https://api.github.com/repos/$1/releases/latest" | grep '"tag_name"' | sed 's/.*"tag_name": *"\([^"]*\)".*/\1/'
+  local auth_header=""
+  if [[ -n "$GITHUB_TOKEN" ]]; then
+    auth_header="-H \"Authorization: token $GITHUB_TOKEN\""
+  fi
+  local result
+  result=$(eval curl -sL $auth_header "https://api.github.com/repos/$1/releases/latest" | grep '"tag_name"' | sed 's/.*"tag_name": *"\([^"]*\)".*/\1/')
+  if [[ -z "$result" ]]; then
+    err "Failed to get latest release for $1 (API rate limit?)"
+    exit 1
+  fi
+  echo "$result"
 }
 
 # Helper to download and extract from GitHub
