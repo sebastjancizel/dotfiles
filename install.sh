@@ -231,7 +231,7 @@ mkdir -p "$HOME_DIR/.config"
 ln -sf "$DOTFILES_DIR/.zshrc" "$HOME_DIR/.zshrc"
 ln -sf "$DOTFILES_DIR/.tmux.conf" "$HOME_DIR/.tmux.conf"
 ln -sf "$DOTFILES_DIR/starship.toml" "$HOME_DIR/.config/starship.toml"
-ln -sf "$DOTFILES_DIR/nvim" "$HOME_DIR/.config/nvim"
+ln -sfn "$DOTFILES_DIR/nvim" "$HOME_DIR/.config/nvim"
 
 log "Installation complete!"
 log ""
