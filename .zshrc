@@ -20,6 +20,7 @@ source "${ZINIT_HOME}/zinit.zsh"
 
 # Load completions
 autoload -Uz compinit && compinit
+zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}'
 
 # Essential plugins
 zinit light Aloxaf/fzf-tab
@@ -73,6 +74,8 @@ gch() {
 # -----------------------
 # 5. Aliases
 # -----------------------
+mkcd() { mkdir -p "$1" && cd "$1"; }
+
 alias vim='nvim'
 alias tmux='tmux -u'
 alias zshconfig="$EDITOR ~/.zshrc"
