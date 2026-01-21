@@ -76,6 +76,97 @@ gch() {
 # -----------------------
 mkcd() { mkdir -p "$1" && cd "$1"; }
 
+# Open file explorer in current directory (cross-platform)
+ofd() {
+  case "$(uname -s)" in
+    Darwin) open "${1:-.}" ;;
+    Linux)  xdg-open "${1:-.}" &>/dev/null & disown ;;
+    *)      echo "Unsupported OS" && return 1 ;;
+  esac
+}
+
+# Copy current directory path to clipboard
+cpwd() {
+  case "$(uname -s)" in
+    Darwin) pwd | tr -d '\n' | pbcopy ;;
+    Linux)  pwd | tr -d '\n' | xclip -selection clipboard ;;
+  esac
+  echo "Copied: $(pwd)"
+}
+
+# Universal archive extraction
+extract() {
+  [[ ! -f "$1" ]] && { echo "Error: '$1' not found"; return 1; }
+  case "$1" in
+    *.tar.bz2) tar xjf "$1" ;;
+    *.tar.gz)  tar xzf "$1" ;;
+    *.tar.xz)  tar xJf "$1" ;;
+    *.tar)     tar xf "$1" ;;
+    *.bz2)     bunzip2 "$1" ;;
+    *.gz)      gunzip "$1" ;;
+    *.zip)     unzip "$1" ;;
+    *.7z)      7z x "$1" ;;
+    *.rar)     unrar x "$1" ;;
+    *)         echo "Unknown format: '$1'" && return 1 ;;
+  esac
+}
+
+# Go up N directories
+up() {
+  local count="${1:-1}"
+  local path=""
+  for ((i = 0; i < count; i++)); do path+="../"; done
+  cd "$path" || return
+}
+
+# Quick local HTTP server
+serve() {
+  local port="${1:-8000}"
+  echo "Serving on http://localhost:$port"
+  python3 -m http.server "$port"
+}
+
+# Show processes listening on ports
+ports() {
+  case "$(uname -s)" in
+    Darwin) lsof -iTCP -sTCP:LISTEN -n -P ;;
+    Linux)  ss -tulnp ;;
+  esac
+}
+
+# Kill process on a specific port
+killport() {
+  [[ -z "$1" ]] && { echo "Usage: killport <port>"; return 1; }
+  local pid
+  case "$(uname -s)" in
+    Darwin) pid=$(lsof -ti ":$1") ;;
+    Linux)  pid=$(fuser "$1/tcp" 2>/dev/null) ;;
+  esac
+  [[ -z "$pid" ]] && { echo "No process on port $1"; return 1; }
+  kill -9 $pid && echo "Killed process $pid on port $1"
+}
+
+# Show public IP address
+myip() { curl -s https://ipinfo.io/ip && echo; }
+
+# Move to trash instead of rm (safer)
+trash() {
+  [[ $# -eq 0 ]] && { echo "Usage: trash <file>..."; return 1; }
+  case "$(uname -s)" in
+    Darwin)
+      for f in "$@"; do mv "$f" ~/.Trash/; done ;;
+    Linux)
+      local trash_dir="${XDG_DATA_HOME:-$HOME/.local/share}/Trash/files"
+      mkdir -p "$trash_dir"
+      for f in "$@"; do mv "$f" "$trash_dir/"; done ;;
+  esac
+}
+
+# Tree with sensible ignores
+tre() {
+  tree -a -I '.git|node_modules|.venv|__pycache__|.DS_Store' --dirsfirst "${@:-.}"
+}
+
 alias vim='nvim'
 alias tmux='tmux -u'
 alias zshconfig="$EDITOR ~/.zshrc"
@@ -151,6 +242,39 @@ command -v zoxide &>/dev/null && eval "$(zoxide init zsh)"
 
 # Rust
 [[ -f "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
+
+# -----------------------
+# 7. Shell help & welcome
+# -----------------------
+shelp() {
+  cat << 'EOF'
+  Shortcuts:
+    mkcd <dir>      Create directory and cd into it
+    ofd [dir]       Open file explorer (default: current dir)
+    cpwd            Copy current path to clipboard
+    extract <file>  Extract any archive (tar, zip, 7z, rar, etc.)
+    up [N]          Go up N directories (default: 1)
+    serve [port]    Start HTTP server (default: 8000)
+    ports           Show processes listening on ports
+    killport <port> Kill process on port
+    myip            Show public IP address
+    trash <file>    Move to trash instead of rm
+    tre [dir]       Tree with sensible ignores
+
+  FZF:
+    ff              Find file with preview
+    fif <term>      Find in files
+    gch [query]     Git checkout branch with fzf
+
+  Type 'shelp' anytime to see this again.
+  Disable welcome: touch ~/.hushlogin or export QUIET_SHELL=1
+EOF
+}
+
+# Show welcome message (disable with ~/.hushlogin or QUIET_SHELL=1)
+if [[ ! -f ~/.hushlogin && -z "$QUIET_SHELL" && $- == *i* ]]; then
+  echo "  Type 'shelp' for shortcuts"
+fi
 
 # Local customizations
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
