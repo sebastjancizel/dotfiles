@@ -114,9 +114,9 @@ extract() {
 # Go up N directories
 up() {
   local count="${1:-1}"
-  local path=""
-  for ((i = 0; i < count; i++)); do path+="../"; done
-  cd "$path" || return
+  local dir=""
+  for ((i = 0; i < count; i++)); do dir+="../"; done
+  cd "$dir" || return
 }
 
 # Quick local HTTP server
