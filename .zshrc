@@ -236,7 +236,7 @@ command -v starship &>/dev/null && eval "$(starship init zsh)"
 
 # fnm (Fast Node Manager)
 if command -v fnm &>/dev/null; then
-  export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp/run/user/$(id -u)}"
+  export XDG_RUNTIME_DIR="/tmp/run/user/$(id -u)"
   mkdir -p "$XDG_RUNTIME_DIR"
   eval "$(fnm env --use-on-cd)"
 fi

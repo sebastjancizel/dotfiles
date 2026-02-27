@@ -222,7 +222,7 @@ rm /tmp/fnm.zip
 
 # Install latest LTS Node
 # Ensure runtime dir exists (some systems don't create /run/user/<uid>)
-export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp/run/user/$(id -u)}"
+export XDG_RUNTIME_DIR="/tmp/run/user/$(id -u)"
 mkdir -p "$XDG_RUNTIME_DIR"
 eval "$("$LOCAL_BIN/fnm" env)"
 "$LOCAL_BIN/fnm" install --lts
