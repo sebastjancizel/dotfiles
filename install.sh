@@ -6,6 +6,19 @@ set -e
 log() { echo -e "\033[0;36m$1\033[0m"; }
 err() { echo -e "\033[0;31m$1\033[0m" >&2; }
 
+NO_SUDO=false
+for arg in "$@"; do
+  case "$arg" in
+    --no-sudo) NO_SUDO=true ;;
+  esac
+done
+
+# Use sudo only when needed and available
+SUDO=""
+if [[ $(id -u) -ne 0 ]]; then
+  SUDO="sudo"
+fi
+
 HOME_DIR="${HOME_DIR:-$HOME}"
 LOCAL_BIN="$HOME_DIR/.local/bin"
 mkdir -p "$LOCAL_BIN"
@@ -49,8 +62,25 @@ gh_download() {
 log "[1/6] Installing system dependencies..."
 if [[ "$OS" == "Linux" ]]; then
   if command -v apt &>/dev/null; then
-    sudo apt update -qq
-    sudo apt install -yqq git curl zsh build-essential
+    MISSING_PKGS=()
+    for pkg in git curl unzip zsh build-essential; do
+      if ! dpkg -s "$pkg" &>/dev/null; then
+        MISSING_PKGS+=("$pkg")
+      fi
+    done
+    if [[ ${#MISSING_PKGS[@]} -gt 0 ]]; then
+      if [[ "$NO_SUDO" == true ]]; then
+        err "  Missing packages: ${MISSING_PKGS[*]}"
+        err "  Run: sudo apt install ${MISSING_PKGS[*]}"
+        exit 1
+      else
+        log "  Installing missing packages: ${MISSING_PKGS[*]}"
+        $SUDO apt update -qq
+        $SUDO apt install -yqq "${MISSING_PKGS[@]}"
+      fi
+    else
+      log "  All system packages already installed"
+    fi
   fi
 elif [[ "$OS" == "Darwin" ]]; then
   # Xcode CLI tools provide git, curl, etc.
