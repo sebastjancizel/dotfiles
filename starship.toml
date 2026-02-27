@@ -25,5 +25,20 @@ disabled = true
 [pulumi]
 symbol = "🧊 "
 
+[deno]
+disabled = true
+
 [typst]
 symbol = "t "
+
+[python]
+disabled = true
+
+[package]
+disabled = true
+
+[hostname]
+disabled = true
+
+[conda]
+disabled = true
