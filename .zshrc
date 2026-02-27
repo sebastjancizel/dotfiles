@@ -235,7 +235,11 @@ command -v starship &>/dev/null && eval "$(starship init zsh)"
 [[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh
 
 # fnm (Fast Node Manager)
-command -v fnm &>/dev/null && eval "$(fnm env --use-on-cd)"
+if command -v fnm &>/dev/null; then
+  export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-$HOME/.local/state}"
+  mkdir -p "$XDG_RUNTIME_DIR"
+  eval "$(fnm env --use-on-cd)"
+fi
 
 # Zoxide (fast cd)
 command -v zoxide &>/dev/null && eval "$(zoxide init zsh)"
