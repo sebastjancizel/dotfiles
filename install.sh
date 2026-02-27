@@ -222,8 +222,8 @@ rm /tmp/fnm.zip
 
 # Install latest LTS Node
 # Ensure runtime dir exists (some systems don't create /run/user/<uid>)
-export FNM_MULTISHELL_PATH="${XDG_RUNTIME_DIR:-/tmp}/fnm_multishells/$$"
-mkdir -p "$FNM_MULTISHELL_PATH"
+export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp/run/user/$(id -u)}"
+mkdir -p "$XDG_RUNTIME_DIR"
 eval "$("$LOCAL_BIN/fnm" env)"
 "$LOCAL_BIN/fnm" install --lts
 log "  fnm + Node.js LTS installed"
